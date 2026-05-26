@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sakura Music Visualizer Waves</title>
+    <title>Palm Beach Waves</title>
     <style>
         * {
             margin: 0;
@@ -15,47 +15,53 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: linear-gradient(to bottom, #fce4ec 0%, #f3e5f5 50%, #ab47bc 100%);
+            background: #000;
+            font-family: sans-serif;
         }
 
-        canvas {
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 30%, #7000ff 70%, #1f005c 100%);
         }
 
-        .overlay {
+        /* Ambient Synthwave/Palm Beach overlay grid for depth */
+        #canvas::after {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.15) 100%);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
             pointer-events: none;
-            z-index: 2;
         }
     </style>
 </head>
 <body>
 
-    <div class="overlay"></div>
     <canvas id="canvas"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
+        // Handle resizing
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
 
+        // Mouse tracking
         const mouse = {
             x: null,
             y: null,
-            radius: 100 
+            radius: 80 // Hover detection radius
         };
 
         window.addEventListener('mousemove', (e) => {
@@ -63,231 +69,209 @@
             mouse.y = e.clientY;
         });
 
-        window.addEventListener('mouseout', () => {
+        window.addEventListener('mouseleave', () => {
             mouse.x = null;
             mouse.y = null;
         });
 
-        window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            initWaves();
-        });
+        // Musical note symbols to render
+        const noteSymbols = ['♪', '♫', '♩', '♬', '♭', '♮', '♯'];
 
-        // --- Music Wave Bar Component ---
-        class MusicBar {
-            constructor(x, baseY, amplitude, frequency, phase, barWidth) {
+        // Particle Class (for explosions)
+        class Particle {
+            constructor(x, y, symbol, color) {
                 this.x = x;
-                this.baseY = baseY;
-                this.y = baseY;
-                this.amplitude = amplitude;
-                this.frequency = frequency;
-                this.phase = phase;
-                this.barWidth = barWidth;
-                
-                // Randomly assign a music note shape type to this column if it explodes
-                this.noteType = Math.floor(Math.random() * 3); // 0: Eighth note, 1: Quarter note, 2: Audio block
-                
-                // Physics
-                this.vx = 0;
-                this.vy = 0;
-                this.isExploded = false;
+                this.y = y;
+                this.symbol = symbol;
+                this.size = Math.random() * 16 + 12;
+                this.speedX = (Math.random() - 0.5) * 10;
+                this.speedY = (Math.random() - 0.5) * 10;
+                this.gravity = 0.05;
                 this.alpha = 1;
-                this.rotation = 0;
-                this.rotSpeed = (Math.random() - 0.5) * 0.1;
-                this.originalX = x;
+                this.decay = Math.random() * 0.015 + 0.01;
+                this.angle = Math.random() * Math.PI * 2;
+                this.spin = (Math.random() - 0.5) * 0.2;
             }
 
-            update(time) {
-                // Calculate current standard wave height (resembling music frequency bars)
-                const targetY = this.baseY - Math.abs(Math.sin(this.x * this.frequency + time + this.phase)) * this.amplitude;
-
-                if (!this.isExploded) {
-                    this.y = targetY;
-
-                    // Mouse collision check
-                    if (mouse.x !== null && mouse.y !== null) {
-                        const dx = this.x - mouse.x;
-                        const dy = this.y - mouse.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-
-                        if (distance < mouse.radius) {
-                            this.isExploded = true;
-                            const angle = Math.atan2(dy, dx);
-                            const force = (mouse.radius - distance) / mouse.radius * 12;
-                            this.vx = Math.cos(angle) * force + (Math.random() - 0.5) * 4;
-                            this.vy = Math.sin(angle) * force - (Math.random() * 4); // Pop upwards slightly
-                        }
-                    }
-                } else {
-                    // Exploded Particle/Note behavior
-                    this.x += this.vx;
-                    this.y += this.vy;
-                    this.vy += 0.15; // Gravity pull down
-                    this.vx *= 0.97; // Friction
-                    this.rotation += this.rotSpeed;
-                    this.alpha -= 0.012;
-
-                    if (this.alpha <= 0) {
-                        this.reset();
-                    }
-                }
+            update() {
+                this.speedY += this.gravity;
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.alpha -= this.decay;
+                this.angle += this.spin;
             }
 
-            draw(ctx, waveIndex) {
-                const baseAlpha = 0.4 + (waveIndex * 0.2);
+            draw() {
                 ctx.save();
-
-                if (!this.isExploded) {
-                    // Draw digital audio visualizer equalizer bars going downward to base height
-                    ctx.fillStyle = `rgba(255, 255, 255, ${baseAlpha})`;
-                    ctx.shadowBlur = 4;
-                    ctx.shadowColor = "#ffffff";
-                    
-                    // Draw equalizer pillar
-                    ctx.fillRect(this.x - this.barWidth/2, this.y, this.barWidth, this.baseY - this.y);
-                    
-                    // Draw a small "peak dot" cap above the music bar
-                    ctx.fillRect(this.x - this.barWidth/2, this.y - 4, this.barWidth, 2);
-                } else {
-                    // Draw the exploded music notes rotating through the air
-                    ctx.translate(this.x, this.y);
-                    ctx.rotate(this.rotation);
-                    ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha * baseAlpha})`;
-                    ctx.shadowBlur = 8;
-                    ctx.shadowColor = "#fff";
-
-                    if (this.noteType === 0) {
-                        // Draw Eighth Note (♫ style)
-                        ctx.beginPath();
-                        ctx.arc(0, 0, 4, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillRect(2, -12, 2, 12);
-                        ctx.fillRect(2, -12, 6, 2);
-                    } else if (this.noteType === 1) {
-                        // Draw Quarter Note (♩ style)
-                        ctx.beginPath();
-                        ctx.arc(0, 0, 4, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillRect(2, -12, 2, 12);
-                    } else {
-                        // Draw Floating Audio Block fragment
-                        ctx.fillRect(-4, -4, 8, 8);
-                    }
-                }
+                ctx.globalAlpha = this.alpha;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.fillStyle = 'rgba(255, 255, 255, ' + this.alpha + ')';
+                // Soft glow effect for the explosion
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#fff';
+                ctx.font = `${this.size}px sans-serif`;
+                ctx.fillText(this.symbol, 0, 0);
                 ctx.restore();
             }
+        }
 
-            reset() {
-                this.x = this.originalX;
+        // Wave Node Class
+        class WaveNode {
+            constructor(x, y, symbol, baseRowY) {
+                this.x = x;
+                this.y = y;
+                this.baseRowY = baseRowY; // Track its original baseline
+                this.symbol = symbol;
+                this.size = Math.random() * 14 + 12;
                 this.isExploded = false;
-                this.alpha = 1;
-                this.vx = 0;
-                this.vy = 0;
-                this.rotation = 0;
+                this.angle = Math.random() * Math.PI;
+            }
+
+            update(time, waveIndex) {
+                if (this.isExploded) return;
+
+                // Flowing oscillation logic
+                // Creates a natural snake/wave movement combining time and x-position
+                this.y = this.baseRowY + Math.sin(time * 0.002 + this.x * 0.005 + waveIndex) * 40;
+                
+                // Add a gentle floating rotation
+                this.angle += 0.01;
+
+                // Check collision with mouse
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dx = this.x - mouse.x;
+                    const dy = this.y - mouse.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < mouse.radius) {
+                        this.explode();
+                    }
+                }
+            }
+
+            explode() {
+                this.isExploded = true;
+                // Create a burst of smaller debris particles when the node dies
+                for (let i = 0; i < 6; i++) {
+                    particles.push(new Particle(this.x, this.y, this.symbol));
+                }
+            }
+
+            draw() {
+                if (this.isExploded) return;
+
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(Math.sin(this.angle) * 0.3); // rocking motion
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+                ctx.font = `${this.size}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.symbol, 0, 0);
+                ctx.restore();
             }
         }
 
-        let waveLayers = [];
-        const numWaves = 3;
+        // Setup the Scene
+        const wavesCount = 5;
+        let waveRows = [];
+        let particles = [];
 
         function initWaves() {
-            waveLayers = [];
-            const barWidth = 6;
-            const gap = 4;
-            const totalBarSpace = barWidth + gap;
-
-            for (let i = 0; i < numWaves; i++) {
-                const bars = [];
-                // Set layers at different steady baselines across lower half
-                const安排Y = height * 0.6 + (i * 55); 
-                const amplitude = 50 + (i * 35);
-                const frequency = 0.005 - (i * 0.001);
-                const phase = i * (Math.PI / 3);
-
-                for (let x = totalBarSpace; x < width; x += totalBarSpace) {
-                    bars.push(new MusicBar(x,安排Y, amplitude, frequency, phase, barWidth));
+            waveRows = [];
+            particles = [];
+            const spacingX = 35; // Horizontal gap between notes
+            
+            for (let w = 0; w < wavesCount; w++) {
+                let nodes = [];
+                // Distribute wave baselines evenly across the height of screen
+                let baseRowY = (canvas.height / (wavesCount + 1)) * (w + 1);
+                
+                for (let x = 0; x < canvas.width + spacingX; x += spacingX) {
+                    const randomSymbol = noteSymbols[Math.floor(Math.random() * noteSymbols.length)];
+                    nodes.push(new WaveNode(x, baseRowY, randomSymbol, baseRowY));
                 }
-                waveLayers.push(bars);
+                waveRows.push(nodes);
             }
         }
 
-        // --- Background Sakura Trees ---
-        function drawSakuraScene() {
-            ctx.save();
-            ctx.strokeStyle = "rgba(54, 32, 51, 0.75)";
-            ctx.fillStyle = "rgba(255, 192, 203, 0.85)";
+        // Ambient Sun Graphic (Classic Palm Beach Synthwave trope)
+        function drawSun() {
+            const sunX = canvas.width / 2;
+            const sunY = canvas.height * 0.45;
+            const radius = Math.min(canvas.width, canvas.height) * 0.25;
 
-            // Main Background Branches
-            drawBranch(0, height * 0.2, 90, -Math.PI / 6, 10, 5);
-            drawBranch(width, height * 0.1, 110, Math.PI * 0.9, 12, 5);
+            ctx.save();
+            let gradient = ctx.createLinearGradient(sunX, sunY - radius, sunX, sunY + radius);
+            gradient.addColorStop(0, '#ffbd59');
+            gradient.addColorStop(0.5, '#ff5e62');
+            gradient.addColorStop(1, '#ff3366');
+
+            ctx.fillStyle = gradient;
+            ctx.shadowBlur = 50;
+            ctx.shadowColor = '#ff5e62';
+            
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, radius, 0, Math.PI * 2);
+            ctx.fill();
             ctx.restore();
         }
 
-        function drawBranch(x, y, length, angle, thickness, depth) {
-            if (depth === 0) return;
+        // Main Animation Loop
+        function animate(timestamp) {
+            // Draw background gradient implicitly via canvas clear/opacity overlay
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw retro sun aesthetic backdrop
+            drawSun();
 
-            const endX = x + Math.cos(angle) * length;
-            const endY = y + Math.sin(angle) * length;
-
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-            ctx.lineTo(endX, endY);
-            ctx.lineWidth = thickness;
-            ctx.lineCap = "round";
-            ctx.stroke();
-
-            if (depth < 4) {
-                const blossoms = Math.floor(Math.random() * 3) + 2;
-                for (let i = 0; i < blossoms; i++) {
-                    const bx = x + Math.cos(angle) * (length * Math.random());
-                    const by = y + Math.sin(angle) * (length * Math.random());
-                    ctx.beginPath();
-                    ctx.arc(bx, by, 5, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    ctx.beginPath();
-                    ctx.arc(bx, by, 1.5, 0, Math.PI * 2);
-                    ctx.fillStyle = "#ff4081";
-                    ctx.fill();
-                    ctx.fillStyle = "rgba(255, 192, 203, 0.85)";
+            // Process and draw wave notes
+            for (let w = 0; w < waveRows.length; w++) {
+                let nodes = waveRows[w];
+                for (let i = 0; i < nodes.length; i++) {
+                    nodes[i].update(timestamp, w);
+                    nodes[i].draw();
                 }
             }
 
-            const branches = Math.random() > 0.3 ? 2 : 1;
-            for (let i = 0; i < branches; i++) {
-                const nextAngle = angle + (Math.random() - 0.5) * 0.7;
-                const nextLength = length * (0.75 + Math.random() * 0.15);
-                drawBranch(endX, endY, nextLength, nextAngle, thickness * 0.65, depth - 1);
+            // Process and draw explosion particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                // Performance optimization: remove dead particles
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1);
+                }
             }
-        }
 
-        // --- Global Animation Loop ---
-        let time = 0;
-
-        function animate() {
-            // Keep background trailing smooth
-            ctx.fillStyle = 'rgba(252, 228, 236, 0.25)';
-            ctx.fillRect(0, 0, width, height);
-
-            // 1. Render Background Sakura
-            drawSakuraScene();
-
-            // 2. Render Equalizer Wave Layers
-            time += 0.03; // Modulation Speed
-
-            waveLayers.forEach((bars, waveIndex) => {
-                bars.forEach(bar => {
-                    bar.update(time);
-                    bar.draw(ctx, waveIndex);
-                });
-            });
+            // Periodically regenerate exploded nodes so screen doesn't go empty
+            regenerateNodes();
 
             requestAnimationFrame(animate);
         }
 
+        function regenerateNodes() {
+            for (let w = 0; w < waveRows.length; w++) {
+                let nodes = waveRows[w];
+                for (let i = 0; i < nodes.length; i++) {
+                    if (nodes[i].isExploded && Math.random() < 0.002) { // gradual respawn rate
+                        const randomSymbol = noteSymbols[Math.floor(Math.random() * noteSymbols.length)];
+                        nodes[i] = new WaveNode(nodes[i].x, nodes[i].baseRowY, randomSymbol, nodes[i].baseRowY);
+                    }
+                }
+            }
+        }
+
+        // Initialize and Run
         initWaves();
-        animate();
+        requestAnimationFrame(animate);
+
+        // Re-initialize on resize to fix spacing layout dynamically
+        window.addEventListener('resize', initWaves);
+
     </script>
 </body>
 </html>
