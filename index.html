@@ -531,7 +531,7 @@
       const rect = progressBg.getBoundingClientRect();
       const ratio = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
       audio.currentTime = ratio * audio.duration;
-      musicVideo.currentTime = audio.currentTime;   /* Added sync */
+      musicVideo.currentTime = audio.currentTime;
     });
 
     audio.addEventListener('timeupdate', () => {
@@ -627,7 +627,7 @@
       if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
     });
 
-    /* ── TV Drag (Added) ── */
+    /* ── TV Drag Engine ── */
     const tv = document.getElementById('tv');
     let tvDragActive = false;
     let tvStartX = 0, tvStartY = 0;
