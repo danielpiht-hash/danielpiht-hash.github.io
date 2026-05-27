@@ -35,13 +35,13 @@
     }
     .bg-note-wave {
       position: absolute;
-      font-size: 52px;
-      color: rgba(255, 255, 255, 0.45); /* White with good visibility */
-      filter: blur(3px);
+      font-size: 58px;
+      color: rgba(255, 255, 255, 0.55);
+      filter: blur(2.5px);
       will-change: transform, opacity;
       mix-blend-mode: screen;
       user-select: none;
-      text-shadow: 0 0 8px rgba(255,255,255,0.3);
+      text-shadow: 0 0 12px rgba(255,255,255,0.4);
     }
 
     /* ── Zero-Lag Money Styles ── */
@@ -735,22 +735,22 @@
     let activeNotes = [];
 
     function spawnNoteWave() {
-      if (activeNotes.length >= 8) return;
+      if (activeNotes.length >= 12) return;
 
       const el = document.createElement('div');
       el.className = 'bg-note-wave';
       el.textContent = NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)];
 
       let xPos = Math.random() * window.innerWidth;
-      let yPos = window.innerHeight + 40;
+      let yPos = window.innerHeight + 50;
       let currentOpacity = 0;
-      let maxOpacity = 0.45 + Math.random() * 0.2;
+      let maxOpacity = 0.6 + Math.random() * 0.15;
       
-      let floatSpeed = 0.6 + Math.random() * 0.8;
+      let floatSpeed = 0.55 + Math.random() * 0.75;
       let waveSeed = Math.random() * 100;
-      let waveSpeed = 0.005 + Math.random() * 0.01;
-      let waveAmount = 20 + Math.random() * 30;
-      let currentScale = 0.7 + Math.random() * 0.6;
+      let waveSpeed = 0.006 + Math.random() * 0.012;
+      let waveAmount = 28 + Math.random() * 35;
+      let currentScale = 0.75 + Math.random() * 0.65;
 
       el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0) scale(${currentScale})`;
       el.style.opacity = currentOpacity;
@@ -780,19 +780,19 @@
         const currentX = n.x + Math.sin(n.waveSeed) * n.waveAmount;
 
         if (n.fadingIn) {
-          n.currentOpacity += 0.015;
+          n.currentOpacity += 0.018;
           if (n.currentOpacity >= n.maxOpacity) {
             n.currentOpacity = n.maxOpacity;
             n.fadingIn = false;
           }
-        } else if (n.y < window.innerHeight * 0.35) {
-          n.currentOpacity -= 0.008;
+        } else if (n.y < window.innerHeight * 0.4) {
+          n.currentOpacity -= 0.009;
         }
 
         n.element.style.transform = `translate3d(${currentX}px, ${n.y}px, 0) scale(${n.currentScale})`;
         n.element.style.opacity = n.currentOpacity;
 
-        if (n.y < -60 || n.currentOpacity <= 0) {
+        if (n.y < -70 || n.currentOpacity <= 0) {
           n.element.remove();
           activeNotes.splice(i, 1);
         }
@@ -802,7 +802,7 @@
 
     // Orchestrate cycles
     setInterval(spawnBill, 2000); 
-    setInterval(spawnNoteWave, 1800);   // Slightly faster spawn for better visibility
+    setInterval(spawnNoteWave, 1400);
     
     requestAnimationFrame(updateMoneyEngine);
     requestAnimationFrame(updateNotesEngine);
