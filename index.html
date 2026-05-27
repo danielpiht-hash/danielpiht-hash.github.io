@@ -3,231 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Music Player</title>
+    <title>Interactive Music Widget</title>
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         body, html {
+            margin: 0;
+            padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: Arial, sans-serif;
-            /* Full-screen background wallpaper */
+            font-family: system-ui, -apple-system, sans-serif;
+            /* Full-screen background setup */
             background: url('wallpaper.jpg') no-repeat center center fixed;
             background-size: cover;
         }
 
-        /* Draggable Widget Container */
-        #music-widget {
+        /* Container for the app widget layout */
+        #widget-container {
             position: absolute;
-            top: 10%;
-            left: 10%;
-            width: 280px;
-            height: 600px;
-            background-color: #000000; /* Fixed to complete black */
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            cursor: grab;
-            user-select: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            align-items: center;
+            gap: 20px;
         }
 
-        #music-widget:active {
-            cursor: grabbing;
-        }
-
-        /* Song Cover Area (Top portion of the widget) */
-        #cover-art-target {
+        /* SVG Widget wrapper */
+        .svg-layout-container {
             width: 100%;
-            height: 480px; 
-            background-color: #C2B69D; /* Matches the beige SVG inner background */
+            height: auto;
+        }
+
+        /* Interactive class properties applied to SVG paths */
+        .interactive-btn {
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.1s ease;
+        }
+        .interactive-btn:hover {
+            opacity: 0.8;
+            filter: brightness(1.2);
+        }
+        .interactive-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Draggable Cover Art Component utilizing local album.jpeg */
+        #draggable-cover {
+            width: 200px;
+            height: 200px;
+            background-color: #222;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            cursor: grab;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            z-index: 10;
+            touch-action: none; /* Disables mobile scroll/pinch gestures during drag interaction */
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
         }
 
-        #cover-art-target img {
-            width: 85%;
-            height: 50%;
-            object-fit: cover;
-            border-radius: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        #draggable-cover:active {
+            cursor: grabbing;
+            transform: scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
 
-        /* Controls Area (Bottom portion embedding the SVG) */
-        .controls-container {
-            width: 100%;
-            height: 120px;
-            position: relative;
-            background-color: #000000; /* Fixed to complete black */
-        }
-
-        .controls-container svg {
+        #draggable-cover .cover-art {
             width: 100%;
             height: 100%;
-            display: block;
+            object-fit: cover;
+            pointer-events: none; /* Blocks native image file dragging to prevent breaking script logic */
         }
 
-        /* VISIBLE Interactive Button Overlays */
-        .btn-overlay {
-            position: absolute;
-            bottom: 15px;
-            height: 55px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.25); /* Semi-transparent white background */
-            border: 2px solid #ffffff; /* Crisp white border to make buttons highly visible */
-            outline: none;
-            transition: all 0.2s ease;
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
-        }
-
-        /* Interactive states for visual feedback */
-        .btn-overlay:hover {
-            background: rgba(255, 255, 255, 0.45);
-            box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
-            transform: scale(1.03);
-        }
-        .btn-overlay:active {
-            background: rgba(255, 255, 255, 0.6);
-            transform: scale(0.97);
-        }
-
-        /* Precise positioning over the SVG paths */
-        #play-btn {
-            left: 15px;
-            width: 70px;
-            border-radius: 40%;
-        }
-
-        #pause-btn {
-            left: 110px;
-            width: 50px;
-            border-radius: 10px;
-        }
-
-        #skip-btn {
-            right: 20px;
-            width: 60px;
-            border-radius: 40%;
-        }
-
-        /* Track Info Text Overlay */
-        #track-info {
-            position: absolute;
+        /* Toast UI Layer feedback styling */
+        #status-toast {
+            position: fixed;
             bottom: 20px;
-            width: 100%;
-            text-align: center;
-            color: #000000; /* Fixed text color to match black styling accents */
-            font-weight: bold;
-            font-size: 1.1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 100;
         }
     </style>
 </head>
 <body>
 
-    <div id="music-widget">
-        <div id="cover-art-target">
-            <img id="cover-image" src="" alt="Album Cover">
-            <div id="track-info">Loading...</div>
-        </div>
-
-        <div class="controls-container">
-            <svg viewBox="0 0 216 462" preserveAspectRatio="xMidYMax meet">
-                <g id="Layer_1">
-                    <rect x="4.5" y="4.5" fill="#C2B69D" stroke="#000000" stroke-width="9" width="207" height="453"/>
-                    <rect x="0" y="375" fill="#000000" width="216" height="87"/>
-                    
-                    <path fill="#C2B69D" d="M12.7,419.9c2-12.8,12-22.1,24.8-22.1s27.5,13.8,27.5,26.6c0,8.7-7.2,14.7-15.9,14.7H28.1 C17.3,439.1,11.3,429.3,12.7,419.9z"/>
-                    <rect x="91.4" y="394.9" fill="#C2B69D" width="9" height="39"/>
-                    <rect x="114.7" y="394.9" fill="#C2B69D" width="9" height="39"/>
-                    <path fill="#C2B69D" d="M191.6,413.7c0,11.2-8.5,19.9-19.7,19.9c-10.7,0-18.4-12-18.4-12s12.5-12,21.5-12 C185.3,393.7,191.6,402.4,191.6,413.7z"/>
-                </g>
-            </svg>
-
-            <button class="btn-overlay" id="play-btn" title="Play"></button>
-            <button class="btn-overlay" id="pause-btn" title="Pause"></button>
-            <button class="btn-overlay" id="skip-btn" title="Restart Song"></button>
-        </div>
+    <div id="draggable-cover">
+        <img class="cover-art" src="album.jpeg" alt="Album Cover">
     </div>
 
-    <audio id="audio-player" src="maxonmusic.mp3"></audio>
+    <div id="widget-container">
+        <div class="svg-layout-container" id="svg-wrapper">
+            </div>
+    </div>
+
+    <div id="status-toast">Status Update</div>
 
     <script>
-        // --- Track Information Configuration ---
-        const trackData = {
-            title: "Maxon Music",
-            audio: "maxonmusic.mp3", 
-            cover: "album.jpeg"
-        };
-
-        const audio = document.getElementById('audio-player');
-        const coverImage = document.getElementById('cover-image');
-        const trackInfo = document.getElementById('track-info');
-
-        // Load setup
-        function initTrack() {
-            audio.src = trackData.audio;
-            coverImage.src = trackData.cover;
-            trackInfo.textContent = trackData.title;
-        }
-
-        // --- Audio Control Functional Logic ---
-
-        // Play: Starts playing the track from its current position
-        document.getElementById('play-btn').addEventListener('click', () => {
-            audio.play().catch(e => console.log("Playback interaction handled."));
-        });
-
-        // Pause: Freezes the track at its current position without resetting
-        document.getElementById('pause-btn').addEventListener('click', () => {
-            audio.pause();
-        });
-
-        // Skip: Restarts the track from the beginning and forces replay
-        document.getElementById('skip-btn').addEventListener('click', () => {
-            audio.currentTime = 0;
-            audio.play().catch(e => {});
-        });
-
-        // Setup widget details on startup
-        initTrack();
-
-        // --- Drag and Drop Interface Framework ---
-        const widget = document.getElementById('music-widget');
-        let isDragging = false;
-        let offsetX, offsetY;
-
-        widget.addEventListener('mousedown', (e) => {
-            if (e.target.classList.contains('btn-overlay')) return;
+        document.addEventListener('DOMContentLoaded', () => {
             
-            isDragging = true;
-            offsetX = e.clientX - widget.getBoundingClientRect().left;
-            offsetY = e.clientY - widget.getBoundingClientRect().top;
-        });
+            // --- 1. INITIALIZE REAL AUDIO ENGINE OBJECT ---
+            const audio = new Audio('maxonmusic.mp3');
+            audio.loop = false;
 
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
+            // --- 2. FETCH AND INJECT SVG CODE ---
+            const svgWrapper = document.getElementById('svg-wrapper');
             
-            let x = e.clientX - offsetX;
-            let y = e.clientY - offsetY;
+            fetch('layout.svg')
+                .then(response => {
+                    if (!response.ok) throw new Error('layout.svg asset not found');
+                    return response.text();
+                })
+                .then(svgText => {
+                    svgWrapper.innerHTML = svgText;
+                    setupWidgetControls();
+                })
+                .catch(err => {
+                    console.error('Error loading SVG layout:', err);
+                    // Functional fallback engine if layout.svg asset is missing or blocked
+                    svgWrapper.innerHTML = `
+                        <div style="color: white; text-align: center; padding: 20px;">
+                            <p style="margin: 0 0 15px 0; font-size:14px;">[layout.svg Not Found]</p>
+                            <button id="fallback-play" style="padding: 10px 20px; margin: 5px; cursor:pointer;">Play</button>
+                            <button id="fallback-pause" style="padding: 10px 20px; margin: 5px; cursor:pointer;">Pause</button>
+                            <button id="fallback-skip" style="padding: 10px 20px; margin: 5px; cursor:pointer;">Restart Track</button>
+                        </div>
+                    `;
+                    setupFallbackControls();
+                });
 
-            // Restricts widget within the window frame limits
-            x = Math.max(0, Math.min(x, window.innerWidth - widget.offsetWidth));
-            y = Math.max(0, Math.min(y, window.innerHeight - widget.offsetHeight));
+            function setupWidgetControls() {
+                const svgElement = svgWrapper.querySelector('svg');
+                if (!svgElement) return;
 
-            widget.style.left = `${x}px`;
-            widget.style.top = `${y}px`;
-        });
+                // Adjust inline dynamic height parameters to let container CSS handle scaling
+                svgElement.setAttribute('width', '100%');
+                svgElement.setAttribute('height', '100%');
 
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
+                /* Map targets inside layout.svg paths */
+                const btnPlay = svgElement.querySelector('#play') || svgElement.querySelector('[id*="play"]');
+                const btnPause1 = svgElement.querySelector('#pause1') || svgElement.querySelector('[id*="pause"]');
+                const btnPause2 = svgElement.querySelector('#pause2');
+                const btnSkip = svgElement.querySelector('#skip') || svgElement.querySelector('[id*="skip"]');
+
+                // Apply dynamic class bindings for pointer states
+                const controlGroup = [btnPlay, btnPause1, btnPause2, btnSkip].filter(Boolean);
+                controlGroup.forEach(btn => btn.classList.add('interactive-btn'));
+
+                // Control action assignments 
+                if (btnPlay) btnPlay.addEventListener('click', () => handleAudioControl('PLAY'));
+                if (btnPause1) btnPause1.addEventListener('click', () => handleAudioControl('PAUSE'));
+                if (btnPause2) btnPause2.addEventListener('click', () => handleAudioControl('PAUSE'));
+                if (btnSkip) btnSkip.addEventListener('click', () => handleAudioControl('RESTART'));
+            }
+
+            function setupFallbackControls() {
+                document.getElementById('fallback-play')?.addEventListener('click', () => handleAudioControl('PLAY'));
+                document.getElementById('fallback-pause')?.addEventListener('click', () => handleAudioControl('PAUSE'));
+                document.getElementById('fallback-skip')?.addEventListener('click', () => handleAudioControl('RESTART'));
+            }
+
+            // Core Audio Controller Logic
+            function handleAudioControl(action) {
+                switch(action) {
+                    case 'PLAY':
+                        audio.play()
+                            .then(() => showToast("🔊 playing maxonmusic.mp3"))
+                            .catch(err => {
+                                console.log("Playback interaction error:", err);
+                                showToast("Click anywhere on the background first to enable audio!");
+                            });
+                        break;
+                        
+                    case 'PAUSE':
+                        audio.pause();
+                        showToast("⏸️ Music Paused");
+                        break;
+                        
+                    case 'RESTART':
+                        audio.currentTime = 0; // Rewinds track timeline to beginning
+                        audio.play()
+                            .then(() => showToast("⏭️ Track Restarted"))
+                            .catch(() => showToast("⏭️ Track Reset to 0:00"));
+                        break;
+                }
+            }
+
+            // --- 3. DRAGGABLE POSITION INTERACTION LOGIC (MOUSE & TOUCH) ---
+            const draggableCover = document.getElementById('draggable-cover');
+            let isDragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            function startDrag(e) {
+                isDragging = true;
+                
+                // Normalizes viewport calculations between touch interfaces and mouse actions
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                
+                const rect = draggableCover.getBoundingClientRect();
+                
+                offsetX = clientX - rect.left;
+                offsetY = clientY - rect.top;
+                
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('touchend', endDrag);
+            }
+
+            function dragMove(e) {
+                if (!isDragging) return;
+                if (e.cancelable) e.preventDefault(); // Prevents modern touch tracking browser drag behaviors
+
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+                let targetX = clientX - offsetX;
+                let targetY = clientY - offsetY;
+
+                // Screen safe-zone edge constraints boundary check
+                const minX = 0;
+                const minY = 0;
+                const maxX = window.innerWidth - draggableCover.offsetWidth;
+                const maxY = window.innerHeight - draggableCover.offsetHeight;
+
+                if (targetX < minX) targetX = minX;
+                if (targetX > maxX) targetX = maxX;
+                if (targetY < minY) targetY = minY;
+                if (targetY > maxY) targetY = maxY;
+
+                draggableCover.style.left = `${targetX}px`;
+                draggableCover.style.top = `${targetY}px`;
+            }
+
+            function endDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', dragMove);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchmove', dragMove);
+                document.removeEventListener('touchend', endDrag);
+            }
+
+            // Assign structural listeners
+            draggableCover.addEventListener('mousedown', startDrag);
+            draggableCover.addEventListener('touchstart', startDrag, { passive: true });
+
+            // --- 4. TOAST NOTIFICATION ALERTS SYSTEM ---
+            const toastElement = document.getElementById('status-toast');
+            let toastTimeout;
+
+            function showToast(message) {
+                clearTimeout(toastTimeout);
+                toastElement.textContent = message;
+                toastElement.style.opacity = '1';
+                toastTimeout = setTimeout(() => {
+                    toastElement.style.opacity = '0';
+                }, 2000);
+            }
         });
     </script>
 </body>
