@@ -256,24 +256,27 @@
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ── Added TV for Music Video ── */
-    #tv {
+    /* ── Added TV Group ── */
+    #tv-group {
       position: fixed;
       bottom: 40px;
       right: 40px;
+      z-index: 5;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+    #tv-group.dragging { cursor: grabbing; }
+
+    #tv {
       width: 460px;
       height: 290px;
       background: #0a0a0a;
       border: 18px solid #222;
       border-radius: 12px;
       box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-      z-index: 5;
       overflow: hidden;
-      cursor: grab;
-      user-select: none;
-      touch-action: none;
     }
-    #tv.dragging { cursor: grabbing; }
     #tv::before {
       content: '';
       position: absolute;
@@ -291,11 +294,8 @@
       object-fit: cover;
     }
 
-    /* TV Title */
+    /* TV Title - now inside group */
     #tv-title {
-      position: fixed;
-      bottom: 340px;
-      right: 40px;
       color: rgba(255,255,255,0.85);
       font-size: 14px;
       font-weight: 500;
@@ -303,8 +303,10 @@
       padding: 6px 14px;
       border-radius: 8px;
       backdrop-filter: blur(10px);
-      z-index: 6;
       white-space: nowrap;
+      margin-top: 12px;
+      text-align: center;
+      width: 460px;
     }
   </style>
 </head>
@@ -361,7 +363,7 @@
     </div>
   </div>
 
-  <!-- Added TV Group -->
+  <!-- TV Group -->
   <div id="tv-group">
     <!-- Added TV -->
     <div id="tv">
@@ -636,15 +638,12 @@
     let tvStartX = 0, tvStartY = 0;
     let tvInitialX = 0, tvInitialY = 0;
 
-    tvGroup.style.position = 'fixed';
-    tvGroup.style.zIndex = '5';
-
     tvGroup.addEventListener('mousedown', initTvDrag);
     tvGroup.addEventListener('touchstart', initTvDrag, { passive: true });
 
     function initTvDrag(e) {
       tvDragActive = true;
-      document.getElementById('tv').classList.add('dragging');
+      tvGroup.classList.add('dragging');
       
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -656,8 +655,6 @@
       tvStartX = clientX;
       tvStartY = clientY;
       
-      tvGroup.style.left = tvInitialX + 'px';
-      tvGroup.style.top = tvInitialY + 'px';
       tvGroup.style.transform = 'none';
     }
 
@@ -674,8 +671,11 @@
       let targetX = tvInitialX + deltaX;
       let targetY = tvInitialY + deltaY;
       
-      const boundX = window.innerWidth - document.getElementById('tv').offsetWidth;
-      const boundY = window.innerHeight - (document.getElementById('tv').offsetHeight + 60);
+      const tvWidth = 460;
+      const groupHeight = 290 + 60;
+      
+      const boundX = window.innerWidth - tvWidth;
+      const boundY = window.innerHeight - groupHeight;
       
       tvGroup.style.left = Math.min(Math.max(0, targetX), boundX) + 'px';
       tvGroup.style.top = Math.min(Math.max(0, targetY), boundY) + 'px';
@@ -684,7 +684,7 @@
     function terminateTvDrag() {
       if (tvDragActive) {
         tvDragActive = false;
-        document.getElementById('tv').classList.remove('dragging');
+        tvGroup.classList.remove('dragging');
       }
     }
 
