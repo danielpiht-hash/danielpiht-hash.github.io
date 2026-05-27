@@ -132,7 +132,7 @@
     }
     .time-row {
       display: flex;
-      justify-content: space-between;
+      justify-between: space-between;
       font-size: 11px;
       color: rgba(255,255,255,0.4);
       margin-top: 2px;
@@ -195,18 +195,18 @@
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ── Performance Optimized Raining Money Styles ── */
+    /* ── Zero-Lag Money Styles ── */
     #money-container {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 1;
-      perspective: 800px;
+      perspective: 500px;
     }
     .bill {
       position: absolute;
-      width: 120px;
-      height: 50px;
+      width: 110px;
+      height: 46px;
       cursor: pointer;
       pointer-events: auto;
       user-select: none;
@@ -220,7 +220,6 @@
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       border-radius: 2px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
     .bill-front {
       transform: rotateY(0deg);
@@ -230,19 +229,11 @@
     }
     .bill-shard {
       position: absolute;
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       background: #ff5500;
       pointer-events: none;
       will-change: transform, opacity;
-    }
-    /* Low-spec CPU friendly Flame Layer */
-    .fire-particle {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-      will-change: transform, opacity;
-      z-index: 2;
     }
   </style></head><body><div id="bg"></div>
 
@@ -537,77 +528,34 @@
     if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
   });
 
-  /* ── Low-Spec Optimized Money & Fire Engine ── */
+  /* ── Flat, Pure Cartoon Money Engine ── */
   const moneyContainer = document.getElementById('money-container');
   
-  // Highly simplified, stylized vector representation of a green bill
+  // Clean flat rectangle vectors with a static corner fire shape (saves CPU)
   const svg100Front = `
-    <svg width="100%" height="100%" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
-      <rect width="120" height="50" fill="#85bb65" stroke="#2e5618" stroke-width="1.5"/>
-      <rect x="4" y="4" width="112" height="42" fill="none" stroke="#2e5618" stroke-width="1"/>
-      <circle cx="60" cy="25" r="12" fill="#a3d985" opacity="0.6"/>
-      <text x="54" y="30" font-family="sans-serif" font-weight="bold" font-size="14" fill="#1b330e">$</text>
-      <text x="8" y="15" font-family="sans-serif" font-size="8" fill="#1b330e">100</text>
-      <text x="100" y="42" font-family="sans-serif" font-size="8" fill="#1b330e">100</text>
+    <svg width="100%" height="100%" viewBox="0 0 110 46" xmlns="http://www.w3.org/2000/svg">
+      <rect width="110" height="46" fill="#529b42" stroke="#1c4412" stroke-width="2"/>
+      <rect x="4" y="4" width="102" height="38" fill="none" stroke="#1c4412" stroke-width="1"/>
+      <circle cx="55" cy="23" r="9" fill="#2d6022"/>
+      <path d="M0,20 Q12,25 5,46 L0,46 Z" fill="#ff4400"/>
+      <path d="M0,28 Q8,32 3,46 L0,46 Z" fill="#ffbb00"/>
     </svg>
   `;
 
   const svg100Back = `
-    <svg width="100%" height="100%" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
-      <rect width="120" height="50" fill="#6da34d" stroke="#1b330e" stroke-width="1.5"/>
-      <rect x="4" y="4" width="112" height="42" fill="none" stroke="#1b330e" stroke-width="1" stroke-dasharray="3,3"/>
-      <circle cx="60" cy="25" r="10" fill="none" stroke="#1b330e" stroke-width="1"/>
-      <text x="14" y="29" font-family="sans-serif" font-weight="bold" font-size="10" fill="#1b330e" letter-spacing="1">100</text>
+    <svg width="100%" height="100%" viewBox="0 0 110 46" xmlns="http://www.w3.org/2000/svg">
+      <rect width="110" height="46" fill="#468738" stroke="#1c4412" stroke-width="2"/>
+      <rect x="4" y="4" width="102" height="38" fill="none" stroke="#1c4412" stroke-width="1"/>
+      <path d="M0,20 Q12,25 5,46 L0,46 Z" fill="#ff4400"/>
+      <path d="M0,28 Q8,32 3,46 L0,46 Z" fill="#ffbb00"/>
     </svg>
   `;
 
   let activeBills = [];
 
-  // Low-cost solid particle framework (No gradients, no blur filters)
-  function spawnFlameParticle(billX, billY) {
-    const p = document.createElement('div');
-    p.className = 'fire-particle';
-    
-    const size = 6 + Math.random() * 8;
-    p.style.width = size + 'px';
-    p.style.height = size + 'px';
-    
-    // Quick random selection of raw basic color blocks
-    p.style.background = Math.random() > 0.4 ? '#ff5500' : '#ffaa00';
-
-    const startX = billX + 15 + (Math.random() * 20 - 10);
-    const startY = billY + 20 + (Math.random() * 20 - 10);
-
-    p.style.transform = `translate3d(${startX}px, ${startY}px, 0)`;
-    moneyContainer.appendChild(p);
-
-    let curY = startY;
-    let curX = startX;
-    let op = 1.0;
-    
-    let velY = -1.5 - Math.random() * 1.0;
-    let velX = (Math.random() - 0.5) * 0.6;
-
-    function animateFlame() {
-      curY += velY;
-      curX += velX;
-      op -= 0.06; 
-
-      p.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
-      p.style.opacity = op;
-
-      if (op <= 0) {
-        p.remove();
-      } else {
-        requestAnimationFrame(animateFlame);
-      }
-    }
-    requestAnimationFrame(animateFlame);
-  }
-
   function spawnBill() {
-    // Drop maximum active viewport count to a strict low limit of 3
-    if (activeBills.length > 2) return;
+    // Rigidly clamped down to maximum 1 bill on screen at a time
+    if (activeBills.length > 0) return;
 
     const el = document.createElement('div');
     el.className = 'bill';
@@ -617,19 +565,19 @@
       <div class="bill-face bill-back">${svg100Back}</div>
     `;
 
-    let xPos = Math.random() * (window.innerWidth - 120);
-    let yPos = -60;
+    let xPos = Math.random() * (window.innerWidth - 110);
+    let yPos = -50;
     
-    let fallSpeed = 1.2 + Math.random() * 0.8; 
-    let swaySpeed = 0.007 + Math.random() * 0.005;
-    let swayAmount = 15 + Math.random() * 15;
-    let rotationSpeedX = (Math.random() - 0.5) * 2.0; 
-    let rotationSpeedY = 1.0 + Math.random() * 2.0;
+    let fallSpeed = 1.3; 
+    let swaySpeed = 0.01;
+    let swayAmount = 15;
+    let rotationSpeedX = 0.8; 
+    let rotationSpeedY = 1.5;
     
     let seed = Math.random() * 100;
     let rotX = Math.random() * 360;
     let rotY = Math.random() * 360;
-    let rotZ = (Math.random() - 0.5) * 20;
+    let rotZ = (Math.random() - 0.5) * 15;
 
     el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
     moneyContainer.appendChild(el);
@@ -668,16 +616,16 @@
     const centerY = rect.top + rect.height / 2;
     bill.element.remove();
 
-    const shardCount = 4;
+    // Bare minimum shards on pop
+    const shardCount = 3;
     for (let i = 0; i < shardCount; i++) {
       const shard = document.createElement('div');
       shard.className = 'bill-shard';
-
       shard.style.transform = `translate3d(${centerX}px, ${centerY}px, 0)`;
       moneyContainer.appendChild(shard);
 
       const angle = Math.random() * Math.PI * 2;
-      const velocity = 2 + Math.random() * 3;
+      const velocity = 2;
       let sX = Math.cos(angle) * velocity;
       let sY = Math.sin(angle) * velocity;
       let opacity = 1;
@@ -688,7 +636,7 @@
         sY += 0.3; 
         curX += sX;
         curY += sY;
-        opacity -= 0.06;
+        opacity -= 0.08;
 
         shard.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
         shard.style.opacity = opacity;
@@ -715,12 +663,7 @@
 
       b.element.style.transform = `translate3d(${currentX}px, ${b.y}px, 0) rotateX(${b.rotX}deg) rotateY(${b.rotY}deg) rotateZ(${b.rotZ}deg)`;
 
-      // Heavily suppressed loop counter restricts layout overflow ticks
-      if (Math.random() > 0.85) {
-        spawnFlameParticle(currentX, b.y);
-      }
-
-      if (b.y > window.innerHeight + 60) {
+      if (b.y > window.innerHeight + 50) {
         b.element.remove();
         activeBills.splice(i, 1);
       }
@@ -728,8 +671,8 @@
     requestAnimationFrame(updateMoneyEngine);
   }
 
-  // Increased generator window delay to 3.5 seconds for minimal background activity
-  setInterval(spawnBill, 3500); 
+  // Generous spawn buffer intervals (6 seconds) ensures maximum downtime performance
+  setInterval(spawnBill, 6000); 
   requestAnimationFrame(updateMoneyEngine);
 
   /* ── Initialization ── */
