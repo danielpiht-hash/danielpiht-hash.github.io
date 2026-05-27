@@ -255,83 +255,12 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* ── Glock Guns & Bullets ── */
-    .glock {
-      position: fixed;
-      top: 42%;
-      width: 165px;
-      height: 85px;
-      z-index: 8;
-      pointer-events: none;
-      filter: drop-shadow(0 15px 20px rgba(0,0,0,0.7));
-    }
-    #glock-left { 
-      left: 8%; 
-      transform: scaleX(-1); 
-    }
-    #glock-right { 
-      right: 8%; 
-    }
-
-    .bullet {
-      position: fixed;
-      width: 22px;
-      height: 5px;
-      background: linear-gradient(90deg, #ffeeaa, #ff8800, #cc5500);
-      border-radius: 3px;
-      box-shadow: 0 0 10px #ffdd00,
-                  0 0 20px #ff5500,
-                  0 0 30px #ff0000;
-      z-index: 9;
-      pointer-events: none;
-      will-change: transform;
-    }
   </style>
 </head>
 <body>
   <div id="bg"></div>
   <div id="music-notes-container"></div>
   <div id="money-container"></div>
-
-  <!-- Glocks -->
-  <div id="glock-left" class="glock">
-    <svg width="165" height="85" viewBox="0 0 165 85" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Grip -->
-      <rect x="18" y="28" width="38" height="48" rx="6" fill="#1f2528"/>
-      <!-- Slide -->
-      <path d="M25 22 Q15 32 22 55 L105 58 Q125 52 138 38 L125 20 Q105 15 25 22 Z" fill="#2a2f34"/>
-      <!-- Top slide details -->
-      <path d="M32 27 Q28 32 32 48 L98 49 Q112 46 118 38 L112 29 Q100 25 32 27 Z" fill="#1c2125"/>
-      <!-- Barrel -->
-      <rect x="118" y="32" width="38" height="13" rx="3" fill="#111315"/>
-      <!-- Muzzle -->
-      <rect x="150" y="30" width="12" height="17" rx="2" fill="#0a0c0f"/>
-      <!-- Trigger guard -->
-      <path d="M65 45 Q70 55 80 55 Q85 48 78 42 Z" fill="#1f2528"/>
-      <!-- Sight -->
-      <rect x="125" y="19" width="8" height="6" fill="#3a3f45"/>
-    </svg>
-  </div>
-
-  <div id="glock-right" class="glock">
-    <svg width="165" height="85" viewBox="0 0 165 85" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Grip -->
-      <rect x="18" y="28" width="38" height="48" rx="6" fill="#1f2528"/>
-      <!-- Slide -->
-      <path d="M25 22 Q15 32 22 55 L105 58 Q125 52 138 38 L125 20 Q105 15 25 22 Z" fill="#2a2f34"/>
-      <!-- Top slide details -->
-      <path d="M32 27 Q28 32 32 48 L98 49 Q112 46 118 38 L112 29 Q100 25 32 27 Z" fill="#1c2125"/>
-      <!-- Barrel -->
-      <rect x="118" y="32" width="38" height="13" rx="3" fill="#111315"/>
-      <!-- Muzzle -->
-      <rect x="150" y="30" width="12" height="17" rx="2" fill="#0a0c0f"/>
-      <!-- Trigger guard -->
-      <path d="M65 45 Q70 55 80 55 Q85 48 78 42 Z" fill="#1f2528"/>
-      <!-- Sight -->
-      <rect x="125" y="19" width="8" height="6" fill="#3a3f45"/>
-    </svg>
-  </div>
 
   <div id="player">
     <div id="art-wrap">
@@ -891,43 +820,6 @@
     
     requestAnimationFrame(updateMoneyEngine);
     requestAnimationFrame(updateNotesEngine);
-
-    /* ── Glock Shooting System ── */
-    function createBullet(startX, direction) {
-      const bullet = document.createElement('div');
-      bullet.className = 'bullet';
-      bullet.style.left = startX + 'px';
-      bullet.style.top = (window.innerHeight * 0.425 + 28) + 'px';
-      document.body.appendChild(bullet);
-
-      let x = startX;
-      const speed = 32;
-
-      function fly() {
-        x += speed * direction;
-        bullet.style.left = x + 'px';
-
-        if (x < -100 || x > window.innerWidth + 100) {
-          bullet.remove();
-        } else {
-          requestAnimationFrame(fly);
-        }
-      }
-      fly();
-    }
-
-    function shootGlocks() {
-      // Left Glock shoots right
-      const leftX = window.innerWidth * 0.08 + 135;
-      createBullet(leftX, 1);
-
-      // Right Glock shoots left
-      const rightX = window.innerWidth * 0.92 - 25;
-      createBullet(rightX, -1);
-    }
-
-    // Shoot every 4 seconds
-    setInterval(shootGlocks, 4000);
 
     /* ── Initialization ── */
     loadSong(idx, false);
