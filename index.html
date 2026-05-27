@@ -214,15 +214,9 @@
 
   <svg id="controls-svg" viewBox="0 0 284 60" xmlns="http://www.w3.org/2000/svg">
     <g id="btn-pause1">
-      <rect class="btn-zone" x="2" y="8" width="52" height="44" rx="10"/>
-      <rect class="ctrl-icon-sm" x="17" y="20" width="7" height="20" rx="2"/>
-      <rect class="ctrl-icon-sm" x="30" y="20" width="7" height="20" rx="2"/>
-    </g>
-
-    <g id="btn-pause2">
-      <rect class="btn-zone" x="60" y="8" width="52" height="44" rx="10"/>
-      <rect class="ctrl-icon-sm" x="75" y="20" width="7" height="20" rx="2"/>
-      <rect class="ctrl-icon-sm" x="88" y="20" width="7" height="20" rx="2"/>
+      <rect class="btn-zone" x="14" y="8" width="52" height="44" rx="10"/>
+      <rect class="ctrl-icon-sm" x="29" y="20" width="7" height="20" rx="2"/>
+      <rect class="ctrl-icon-sm" x="42" y="20" width="7" height="20" rx="2"/>
     </g>
 
     <g id="btn-play">
@@ -231,10 +225,9 @@
     </g>
 
     <g id="btn-skip">
-      <rect class="btn-zone" x="174" y="8" width="108" height="44" rx="10"/>
-      <polygon class="ctrl-icon-sm" points="208,20 208,40 188,30"/>
-      <rect class="ctrl-icon-sm" x="183" y="20" width="5" height="20" rx="2"/>
-      <text x="222" y="34" font-size="11" fill="rgba(255,255,255,0.45)" font-family="inherit" letter-spacing="1">RESET</text>
+      <rect class="btn-zone" x="218" y="8" width="52" height="44" rx="10"/>
+      <polygon class="ctrl-icon-sm" points="248,20 248,40 232,30"/>
+      <rect class="ctrl-icon-sm" x="227" y="20" width="4" height="20" rx="1.5"/>
     </g>
   </svg>
 
@@ -252,11 +245,11 @@
 <audio id="audio"></audio>
 
 <script>
-  // Added album.jpeg as the designated structural cover image asset
+  // Updated with explicit Track Metadata requirements
   const SONGS = [
     {
-      title: "Maxon Music",
-      artist: "Maxon",
+      title: "Hate The Morning",
+      artist: "Maxon Margiela",
       cover: "album.jpeg",   
       src:   "maxonmusic.mp3" 
     }
@@ -284,7 +277,6 @@
     return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
   }
 
-  // Visual status notification display logic
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('show');
@@ -300,7 +292,6 @@
     audio.src = s.src;
     audio.volume = parseFloat(volSlider.value);
 
-    // Dynamic graphic canvas fading transition loop
     coverImg.classList.add('fade-out');
     setTimeout(() => {
       coverImg.src = s.cover;
@@ -378,7 +369,6 @@
     }
   }
   document.getElementById('btn-pause1').addEventListener('click', () => pauseAction('⏸'));
-  document.getElementById('btn-pause2').addEventListener('click', () => pauseAction('⏸'));
 
   document.getElementById('btn-skip').addEventListener('click', () => {
     audio.currentTime = 0; 
