@@ -132,7 +132,7 @@
     }
     .time-row {
       display: flex;
-      justify-content: space-between;
+      justify-between: space-between;
       font-size: 11px;
       color: rgba(255,255,255,0.4);
       margin-top: 2px;
@@ -544,10 +544,9 @@
     if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
   });
 
-  /* ── Optimized Crash-Resistant Money & Fire Pipeline ── */
+  /* ── Ultra-Lightweight Money & Fire Pipeline ── */
   const moneyContainer = document.getElementById('money-container');
   
-  // Realist, lightweight vector representation of US $100 Bill Front Face
   const svg100Front = `
     <svg width="100%" height="100%" viewBox="0 0 130 55" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -573,7 +572,6 @@
     </svg>
   `;
 
-  // Realist, lightweight vector representation of US $100 Bill Back Face
   const svg100Back = `
     <svg width="100%" height="100%" viewBox="0 0 130 55" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -596,40 +594,36 @@
 
   let activeBills = [];
 
-  // Lightweight pre-blended multi-layered color field particle generator
   function spawnFlameParticle(billX, billY, rotZ) {
     const p = document.createElement('div');
     p.className = 'fire-particle';
     
     const rand = Math.random();
-    let size = 12 + Math.random() * 14;
+    let size = 11 + Math.random() * 12;
     let bg = '';
     
-    // Performance optimized flat CSS radial distributions instead of filter: blur()
     if (rand > 0.65) {
       bg = 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,200,0,0.6) 50%, rgba(255,68,0,0) 70%)';
     } else if (rand > 0.25) {
       bg = 'radial-gradient(circle, rgba(255,100,0,0.7) 0%, rgba(180,30,0,0.4) 50%, rgba(0,0,0,0) 80%)';
     } else {
-      bg = 'radial-gradient(circle, rgba(60,60,60,0.3) 0%, rgba(0,0,0,0) 70%)';
-      size = 18 + Math.random() * 10;
+      bg = 'radial-gradient(circle, rgba(60,60,60,0.2) 0%, rgba(0,0,0,0) 70%)';
+      size = 16 + Math.random() * 8;
     }
 
     p.style.width = size + 'px';
     p.style.height = size + 'px';
     p.style.background = bg;
 
-    // Fast trigonometric local offset calculation math
     const angleRad = rotZ * Math.PI / 180;
-    const localX = Math.random() * 20 - 10;
-    const localY = Math.random() * 40 - 20;
+    const localX = Math.random() * 16 - 8;
+    const localY = Math.random() * 32 - 16;
     const rotX = localX * Math.cos(angleRad) - localY * Math.sin(angleRad);
     const rotY = localX * Math.sin(angleRad) + localY * Math.cos(angleRad);
 
     const startX = billX + 20 + rotX;
     const startY = billY + 27 + rotY;
 
-    // Use GPU hardware acceleration layers for the particles
     p.style.transform = `translate3d(${startX}px, ${startY}px, 0)`;
     moneyContainer.appendChild(p);
 
@@ -638,14 +632,14 @@
     let op = 1.0;
     let scale = 1.0;
     
-    let velY = -1.5 - Math.random() * 1.5;
-    let velX = (Math.random() - 0.5) * 1.0;
+    let velY = -1.4 - Math.random() * 1.2;
+    let velX = (Math.random() - 0.5) * 0.8;
 
     function animateFlame() {
       curY += velY;
       curX += velX;
-      op -= 0.045; 
-      scale += 0.02;
+      op -= 0.05; 
+      scale += 0.015;
 
       p.style.transform = `translate3d(${curX}px, ${curY}px, 0) scale(${scale})`;
       p.style.opacity = op;
@@ -660,8 +654,8 @@
   }
 
   function spawnBill() {
-    // Strictly capped max element depth structure to eliminate crash vectors
-    if (activeBills.length > 15) return;
+    // Aggressively capped concurrent bill limit down to 5 max layout entries
+    if (activeBills.length > 4) return;
 
     const el = document.createElement('div');
     el.className = 'bill';
@@ -674,18 +668,17 @@
     let xPos = Math.random() * (window.innerWidth - 130);
     let yPos = -60;
     
-    let fallSpeed = 1.2 + Math.random() * 1.4; 
-    let swaySpeed = 0.009 + Math.random() * 0.012;
-    let swayAmount = 25 + Math.random() * 30;
-    let rotationSpeedX = (Math.random() - 0.5) * 2.5; 
-    let rotationSpeedY = 1.5 + Math.random() * 3.0;
+    let fallSpeed = 1.1 + Math.random() * 1.2; 
+    let swaySpeed = 0.008 + Math.random() * 0.010;
+    let swayAmount = 20 + Math.random() * 25;
+    let rotationSpeedX = (Math.random() - 0.5) * 2.0; 
+    let rotationSpeedY = 1.2 + Math.random() * 2.2;
     
     let seed = Math.random() * 100;
     let rotX = Math.random() * 360;
     let rotY = Math.random() * 360;
-    let rotZ = (Math.random() - 0.5) * 30;
+    let rotZ = (Math.random() - 0.5) * 25;
 
-    // GPU layer activation configuration
     el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
     moneyContainer.appendChild(el);
 
@@ -723,8 +716,7 @@
     const centerY = rect.top + rect.height / 2;
     bill.element.remove();
 
-    // Throttled light shard bursts 
-    const shardCount = 8;
+    const shardCount = 6;
     for (let i = 0; i < shardCount; i++) {
       const shard = document.createElement('div');
       shard.className = 'bill-shard';
@@ -735,7 +727,7 @@
       moneyContainer.appendChild(shard);
 
       const angle = Math.random() * Math.PI * 2;
-      const velocity = 3 + Math.random() * 5;
+      const velocity = 2 + Math.random() * 4;
       let sX = Math.cos(angle) * velocity;
       let sY = Math.sin(angle) * velocity;
       let sRot = Math.random() * 360;
@@ -747,8 +739,8 @@
         sY += 0.25; 
         curX += sX;
         curY += sY;
-        opacity -= 0.03;
-        sRot += 5;
+        opacity -= 0.04;
+        sRot += 4;
 
         shard.style.transform = `translate3d(${curX}px, ${curY}px, 0) rotate(${sRot}deg)`;
         shard.style.opacity = opacity;
@@ -773,11 +765,10 @@
       b.rotX += b.rotationSpeedX;
       b.rotY += b.rotationSpeedY;
 
-      // Combined optimized 3D matrix operations inside translate3d hardware pipeline
       b.element.style.transform = `translate3d(${currentX}px, ${b.y}px, 0) rotateX(${b.rotX}deg) rotateY(${b.rotY}deg) rotateZ(${b.rotZ}deg)`;
 
-      // Throttled particle ticks to completely protect low-end mobile/desktop browsers
-      if (Math.random() > 0.4) {
+      // Heavily throttled fire updates to maximize rendering performance profiles
+      if (Math.random() > 0.7) {
         spawnFlameParticle(currentX, b.y, b.rotZ);
       }
 
@@ -789,7 +780,8 @@
     requestAnimationFrame(updateMoneyEngine);
   }
 
-  setInterval(spawnBill, 900); // Shifted generation interval slightly to minimize overlapping overhead
+  // Lengthened spawn intervals to cleanly space out active configurations
+  setInterval(spawnBill, 2200); 
   requestAnimationFrame(updateMoneyEngine);
 
   /* ── Initialization ── */
