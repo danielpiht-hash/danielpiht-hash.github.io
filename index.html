@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Music Player - Money Rain Edition</title>
+  <title>Music Player</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,26 +10,19 @@
       height: 100vh;
       overflow: hidden;
       font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0b0f19;
+      background: #111;
     }
 
-    /* ── Money Rain Canvas Layer ── */
-    #money-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      cursor: pointer;
-    }
-
-    /* ── Subtle Background gradient behind canvas ── */
+    /* ── Full-screen wallpaper ── */
     #bg {
       position: fixed;
       inset: 0;
-      background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      filter: brightness(0.55) blur(2px);
       z-index: 0;
     }
 
-    /* ── Draggable player card (Z-indexed above money) ── */
+    /* ── Draggable player card ── */
     #player {
       position: fixed;
       top: 50%;
@@ -41,16 +32,16 @@
       width: 340px;
       border-radius: 24px;
       background: rgba(15, 15, 20, 0.75);
-      backdrop-filter: blur(25px) saturate(1.8);
-      -webkit-backdrop-filter: blur(25px) saturate(1.8);
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 32px 80px rgba(0,0,0,0.65);
+      backdrop-filter: blur(22px) saturate(1.6);
+      -webkit-backdrop-filter: blur(22px) saturate(1.6);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.55);
       padding: 28px 28px 24px;
       cursor: grab;
       user-select: none;
       touch-action: none;
     }
-    #player.dragging { cursor: grabbing; box-shadow: 0 48px 100px rgba(0,0,0,0.80); }
+    #player.dragging { cursor: grabbing; box-shadow: 0 48px 100px rgba(0,0,0,0.70); }
 
     /* Album art */
     #art-wrap {
@@ -60,7 +51,7 @@
       border-radius: 16px;
       overflow: hidden;
       margin-bottom: 20px;
-      background: #111322;
+      background: #1a1a2e;
     }
     #art-wrap img {
       position: absolute;
@@ -77,7 +68,7 @@
       position: absolute;
       inset: 8px;
       border-radius: 50%;
-      border: 2px dashed rgba(167, 139, 250, 0.25);
+      border: 2px dashed rgba(255,255,255,0.15);
       animation: spin 12s linear infinite;
       animation-play-state: paused;
       pointer-events: none;
@@ -120,7 +111,7 @@
     #progress-fill {
       height: 100%;
       border-radius: 2px;
-      background: linear-gradient(90deg, #34d399, #059669); /* Color matched to money vibe */
+      background: linear-gradient(90deg, #a78bfa, #6366f1);
       width: 0%;
     }
     #progress-thumb {
@@ -174,7 +165,7 @@
     #vol-wrap svg { flex-shrink: 0; }
     #vol-slider {
       flex: 1;
-      accent-color: #34d399;
+      accent-color: #a78bfa;
       height: 4px;
       cursor: pointer;
       background: rgba(255, 255, 255, 0.1);
@@ -201,17 +192,41 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  </style>
-</head>
-<body>
 
-<div id="bg"></div>
+    /* ── Raining Money Styles ── */
+    #money-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      perspective: 1000px;
+    }
+    .bill {
+      position: absolute;
+      width: 130px;
+      height: 55px;
+      cursor: pointer;
+      pointer-events: auto;
+      user-select: none;
+      transform-style: preserve-3d;
+      will-change: transform, top, left;
+    }
+    .bill-shard {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #85bb65;
+      border: 1px solid #4d7c3a;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+  </style></head><body><div id="bg"></div>
 
-<canvas id="money-canvas"></canvas>
+<div id="money-container"></div>
 
 <div id="player">
   <div id="art-wrap">
-    <img id="cover-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100%' height='100%' fill='%23064e3b'/><circle cx='50' cy='50' r='20' fill='%23059669'/></svg>" alt="Album Cover" />
+    <img id="cover-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100%' height='100%' fill='%231e1b4b'/><circle cx='50' cy='50' r='20' fill='%234338ca'/></svg>" alt="Album Cover" />
     <div id="vinyl-ring"></div>
   </div>
 
@@ -254,248 +269,8 @@
       <path d="M11 5a3.5 3.5 0 0 1 0 6" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
     <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.8" />
-  </div>
-</div>
-
-<div id="toast"></div>
-
-<audio id="audio" crossorigin="anonymous"></audio>
-
-<script>
-  /* ── REALISTIC MONEY RAIN ENGINE (HTML5 Canvas) ── */
-  const canvas = document.getElementById('money-canvas');
-  const ctx = canvas.getContext('2d');
-
-  let bills = [];
-  let particles = [];
-  const MAX_BILLS = 45;
-
-  // Resize canvas dynamically
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
-  // Create highly optimized programmatic 100 Dollar Bill Texture
-  const billCanvas = document.createElement('canvas');
-  const bCtx = billCanvas.getContext('2d');
-  billCanvas.width = 150;
-  billCanvas.height = 65;
-
-  function drawBillTexture() {
-    // Base crisp money green
-    bCtx.fillStyle = '#85bb65';
-    bCtx.fillRect(0, 0, 150, 65);
-    
-    // Outer border thin line
-    bCtx.strokeStyle = '#2e5618';
-    bCtx.lineWidth = 3;
-    bCtx.strokeRect(4, 4, 142, 57);
-    
-    // Fine detailed inside border
-    bCtx.strokeStyle = '#4f8236';
-    bCtx.lineWidth = 1;
-    bCtx.strokeRect(8, 8, 134, 49);
-
-    // Vignette background patterns
-    bCtx.fillStyle = '#9ccc7c';
-    bCtx.beginPath();
-    bCtx.arc(75, 32.5, 22, 0, Math.PI * 2);
-    bCtx.fill();
-
-    // Portrait Placeholder (Benjamin Franklin silhouette representation)
-    bCtx.fillStyle = '#5d8aa8';
-    bCtx.beginPath();
-    bCtx.ellipse(73, 34, 11, 15, 0, 0, Math.PI * 2);
-    bCtx.fill();
-    bCtx.fillStyle = '#3b6245';
-    bCtx.beginPath();
-    bCtx.ellipse(73, 31, 9, 11, 0, 0, Math.PI * 2);
-    bCtx.fill();
-
-    // Bold "100" details in corners
-    bCtx.fillStyle = '#1e3f11';
-    bCtx.font = 'bold 11px Georgia, serif';
-    bCtx.fillText('100', 14, 21);
-    bCtx.fillText('100', 122, 21);
-    bCtx.fillText('100', 14, 54);
-    bCtx.fillText('100', 122, 54);
-
-    // Treasury Seals & Textures
-    bCtx.fillStyle = '#0a3611';
-    bCtx.font = 'bold 8px Arial';
-    bCtx.fillText('ONE HUNDRED', 44, 59);
-    
-    bCtx.fillStyle = '#1b4d22';
-    bCtx.beginPath();
-    bCtx.arc(32, 35, 6, 0, Math.PI*2);
-    bCtx.fill();
-  }
-  drawBillTexture();
-
-  // Bill Class Constructor with Physics
-  class Bill {
-    constructor(isInitial = false) {
-      this.width = 75 + Math.random() * 25; 
-      this.height = this.width * (65 / 150);
-      this.x = Math.random() * canvas.width;
-      this.y = isInitial ? Math.random() * canvas.height : -this.height - 20;
-      
-      this.speedY = 1.5 + Math.random() * 2.5;
-      this.speedX = Math.sin(Math.random() * Math.PI) * 0.8;
-      
-      // Multi-axis rotation configurations for full 3D tumbling appearance
-      this.rotation = Math.random() * Math.PI * 2;
-      this.rotationSpeed = (Math.random() - 0.5) * 0.03;
-      this.scaleY = 1;
-      this.scaleSpeed = 0.02 + Math.random() * 0.03;
-      this.waveTime = Math.random() * 100;
-    }
-
-    update() {
-      this.y += this.speedY;
-      this.waveTime += 0.04;
-      this.x += this.speedX + Math.sin(this.waveTime) * 0.5;
-      
-      this.rotation += this.rotationSpeed;
-      // Triggers the 3D flipping cycle
-      this.scaleY = Math.sin(this.waveTime);
-
-      // Reset bill when it touches the floor
-      if (this.y > canvas.height + this.height) {
-        this.reset();
-      }
-    }
-
-    reset() {
-      this.x = Math.random() * canvas.width;
-      this.y = -this.height - 20;
-      this.speedY = 1.5 + Math.random() * 2.5;
-      this.waveTime = Math.random() * 100;
-    }
-
-    draw() {
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.rotation);
-      ctx.scale(1, Math.abs(this.scaleY)); // Simulates 3D flip over X-axis
-      
-      // Dynamic dark lighting/shading based on flip angle relative to pseudo light source
-      let shadowIntensity = Math.abs(this.scaleY);
-      ctx.globalAlpha = 0.2 + shadowIntensity * 0.8;
-
-      // Draw standard texture onto master canvas scene
-      ctx.drawImage(billCanvas, -this.width / 2, -this.height / 2, this.width, this.height);
-      
-      // Shadow overlay overlay 
-      if (this.scaleY < 0) {
-        ctx.fillStyle = 'rgba(20, 50, 20, 0.25)';
-        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-      }
-      ctx.restore();
-    }
-
-    checkHit(mx, my) {
-      // Basic distance checking vector around center pivot point
-      const dx = this.x - mx;
-      const dy = this.y - my;
-      const radius = this.width / 1.3;
-      if (Math.sqrt(dx * dx + dy * dy) < radius) {
-        return true;
-      }
-      return false;
-    }
-  }
-
-  // Spark Explosions Class
-  class Particle {
-    constructor(x, y) {
-      this.x = x;
-      this.y = y;
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 2 + Math.random() * 6;
-      this.vx = Math.cos(angle) * speed;
-      this.vy = Math.sin(angle) * speed;
-      this.radius = 2 + Math.random() * 4;
-      this.alpha = 1;
-      this.decay = 0.02 + Math.random() * 0.02;
-      this.color = Math.random() > 0.5 ? '#a7f3d0' : '#fbbf24'; // Alternates between cash green and gold leaf sparks
-    }
-    update() {
-      this.x += this.vx;
-      this.y += this.vy;
-      this.vy += 0.1; // mild gravity pulling sparks down
-      this.alpha -= this.decay;
-    }
-    draw() {
-      ctx.save();
-      ctx.globalAlpha = this.alpha;
-      ctx.fillStyle = this.color;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  // Populate Bill Array initially
-  for (let i = 0; i < MAX_BILLS; i++) {
-    bills.push(new Bill(true));
-  }
-
-  // Explosion Click Capture
-  canvas.addEventListener('mousedown', (e) => {
-    handleExplode(e.clientX, e.clientY);
-  });
-
-  canvas.addEventListener('touchstart', (e) => {
-    if(e.touches.length > 0) {
-      handleExplode(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  }, { passive: true });
-
-  function handleExplode(clickX, clickY) {
-    for (let i = bills.length - 1; i >= 0; i--) {
-      if (bills[i].checkHit(clickX, clickY)) {
-        // Trigger 25 burst particles at collision location
-        for (let p = 0; p < 25; p++) {
-          particles.push(new Particle(bills[i].x, bills[i].y));
-        }
-        // Respawn the hit bill instantly at top frame border
-        bills[i].reset();
-        break; // Single break kills one stacked bill target per click event loop
-      }
-    }
-  }
-
-  // Continuous Master Animation Loop
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Process falling cash assets
-    bills.forEach(bill => {
-      bill.update();
-      bill.draw();
-    });
-
-    // Process particle dynamics structures
-    for (let i = particles.length - 1; i >= 0; i--) {
-      particles[i].update();
-      if (particles[i].alpha <= 0) {
-        particles.splice(i, 1);
-      } else {
-        particles[i].draw();
-      }
-    }
-
-    requestAnimationFrame(animate);
-  }
-  requestAnimationFrame(animate);
-
-
-  /* ── AUDIO PLAYER FUNCTIONAL ENGINE ── */
+  </div></div><div id="toast"></div><audio id="audio" crossorigin="anonymous"></audio><script>
+  // Track Catalog Array
   const SONGS = [
     {
       title: "Hate The Morning",
@@ -505,9 +280,36 @@
     }
   ];
 
+  /* ── State variables ── */
   let idx = 0;
   let playing = false;
 
+  // DOM Elements
+  const audio = document.getElementById('audio');
+  const coverImg = document.getElementById('cover-img');
+  const songTitle = document.getElementById('song-title');
+  const songArtist = document.getElementById('song-artist');
+  const progressWrap = document.getElementById('progress-wrap');
+  const progressBg = document.getElementById('progress-bg');
+  const progressFill = document.getElementById('progress-fill');
+  const progressThumb = document.getElementById('progress-thumb');
+  const timeCur = document.getElementById('time-cur');
+  const timeDur = document.getElementById('time-dur');
+  const vinylRing = document.getElementById('vinyl-ring');
+  const volSlider = document.getElementById('vol-slider');
+  const toast = document.getElementById('toast');
+  const player = document.getElementById('player');
+
+  /* ── Notification Management ── */
+  let toastTimer;
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  /* ── Time Formatting Utility ── */
   function fmt(s) {
     if (isNaN(s) || s === Infinity) return '0:00';
     const mins = Math.floor(s / 60);
@@ -515,13 +317,7 @@
     return mins + ':' + String(secs).padStart(2, '0');
   }
 
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => toast.classList.remove('show'), 1800);
-  }
-
+  /* ── Music Metadata Management ── */
   function loadSong(i, autoplay) {
     const s = SONGS[i];
     if (!s) return;
@@ -531,16 +327,19 @@
     audio.src = s.src;
     audio.volume = parseFloat(volSlider.value);
 
+    // Fade animation wrapper for Album art changes
     coverImg.classList.add('fade-out');
     setTimeout(() => {
       coverImg.src = s.cover;
       coverImg.onload = () => coverImg.classList.remove('fade-out');
       coverImg.onerror = () => {
-        coverImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='%23064e3b'/></svg>";
+        // Fallback transparent/generated placeholder asset vector if resource fails
+        coverImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='%231e1b4b'/></svg>";
         coverImg.classList.remove('fade-out');
       };
     }, 200);
 
+    // Clear timelines reset layout variables
     progressFill.style.width = '0%';
     progressThumb.style.left = '0%';
     timeCur.textContent = '0:00';
@@ -564,12 +363,14 @@
     }
   }
 
+  // Dynamic SVG Node updates for switching inner elements
   function updatePlayIcon(isPlaying) {
     const g = document.getElementById('btn-play');
     const oldIcons = g.querySelectorAll('.ctrl-icon');
     oldIcons.forEach(el => el.remove());
 
     if (isPlaying) {
+      // Create SVG Pause Rectangles
       [['132', '6'], ['146', '6']].forEach(([xPos, width]) => {
         const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         r.setAttribute('class', 'ctrl-icon');
@@ -581,6 +382,7 @@
         g.appendChild(r);
       });
     } else {
+      // Create SVG Play Triangle Polygon
       const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
       poly.setAttribute('class', 'ctrl-icon');
       poly.setAttribute('points', '134,18 134,42 154,30');
@@ -588,7 +390,7 @@
     }
   }
 
-  /* Control Mappings */
+  /* ── Interactive Player Controls ── */
   document.getElementById('btn-play').addEventListener('click', () => {
     if (playing) {
       audio.pause();
@@ -617,6 +419,7 @@
     showToast('Track Restarted');
   });
 
+  /* ── Progress Scrub Mechanics ── */
   progressWrap.addEventListener('click', e => {
     if (!audio.duration) return;
     const rect = progressBg.getBoundingClientRect();
@@ -642,11 +445,12 @@
     showToast('Track Finished');
   });
 
+  /* ── Volume Handling ── */
   volSlider.addEventListener('input', () => {
     audio.volume = parseFloat(volSlider.value);
   });
 
-  /* ── Precise Card Drag Handling Engine ── */
+  /* ── Strict Container Boundary Card Drag Engine ── */
   let dragActive = false;
   let startX = 0, startY = 0;
   let initialX = 0, initialY = 0;
@@ -655,6 +459,7 @@
   player.addEventListener('touchstart', initDrag, { passive: true });
 
   function initDrag(e) {
+    // Prevent drag triggering if interacting with interface inputs or buttons
     if (e.target.closest('.btn-zone, #progress-wrap, #vol-slider')) return;
     
     dragActive = true;
@@ -663,6 +468,7 @@
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     
+    // Calculate precise layout location without layout shifts or transform jumps
     const rect = player.getBoundingClientRect();
     initialX = rect.left;
     initialY = rect.top;
@@ -670,6 +476,7 @@
     startX = clientX;
     startY = clientY;
     
+    // Clear initial CSS transforms to handle structural reposition via absolute positions
     player.style.transform = 'none';
     player.style.left = initialX + 'px';
     player.style.top = initialY + 'px';
@@ -691,6 +498,7 @@
     let targetX = initialX + deltaX;
     let targetY = initialY + deltaY;
     
+    // Window layout edge constraints enforcement
     const boundX = window.innerWidth - player.offsetWidth;
     const boundY = window.innerHeight - player.offsetHeight;
     
@@ -707,9 +515,181 @@
   
   document.addEventListener('mouseup', terminateDrag);
   document.addEventListener('touchend', terminateDrag);
+  window.addEventListener('resize', () => {
+    // Force containment check if window size shifts
+    const rect = player.getBoundingClientRect();
+    const boundX = window.innerWidth - player.offsetWidth;
+    const boundY = window.innerHeight - player.offsetHeight;
+    if (rect.left > boundX) player.style.left = Math.max(0, boundX) + 'px';
+    if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
+  });
 
-  // Initialize
+  /* ── Realist Raining Money & Particle Engine ── */
+  const moneyContainer = document.getElementById('money-container');
+  
+  // Clean, high-fidelity vector representation string of a US $100 Bill
+  const svg100Bill = `
+    <svg width="100%" height="100%" viewBox="0 0 130 55" xmlns="http://www.w3.org/2000/svg">
+      <rect width="130" height="55" rx="2" fill="#9fbfa0" stroke="#557a56" stroke-width="1"/>
+      <rect x="3" y="3" width="124" height="49" fill="#c3dec4" opacity="0.7"/>
+      <rect x="80" y="3" width="5" height="49" fill="#4d71a3" opacity="0.6"/>
+      <rect x="5" y="5" width="120" height="45" fill="none" stroke="#688c69" stroke-width="0.7" stroke-dasharray="2,1"/>
+      <ellipse cx="62" cy="27" rx="14" ry="19" fill="#a4c2a5" stroke="#5d825e" stroke-width="1"/>
+      <ellipse cx="62" cy="26" rx="9" ry="13" fill="#8cae8d" opacity="0.5"/>
+      <circle cx="30" cy="27" r="6" fill="#4d7c3a" opacity="0.3"/>
+      <circle cx="98" cy="27" r="5" fill="#3a5d7c" opacity="0.2"/>
+      <text x="8" y="16" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#2d4a2e">100</text>
+      <text x="106" y="16" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#2d4a2e">100</text>
+      <text x="8" y="48" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#2d4a2e">100</text>
+      <text x="106" y="48" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#2d4a2e">100</text>
+      <text x="42" y="50" font-family="sans-serif" font-size="4" letter-spacing="0.3" font-weight="bold" fill="#2d4a2e" opacity="0.7">ONE HUNDRED DOLLARS</text>
+      <rect x="12" y="22" width="12" height="1.5" fill="#984242" opacity="0.6"/>
+      <rect x="96" y="36" width="12" height="1.5" fill="#2d4a2e" opacity="0.6"/>
+    </svg>
+  `;
+
+  let activeBills = [];
+
+  function spawnBill() {
+    // Keep a maximum concurrency limit to maintain smooth rendering execution loops
+    if (activeBills.length > 25) return;
+
+    const el = document.createElement('div');
+    el.className = 'bill';
+    el.innerHTML = svg100Bill;
+
+    // Set randomized initial structural attributes
+    let xPos = Math.random() * (window.innerWidth - 130);
+    let yPos = -60;
+    
+    // Physics and sway attributes
+    let fallSpeed = 1.2 + Math.random() * 2;
+    let swaySpeed = 0.01 + Math.random() * 0.02;
+    let swayAmount = 20 + Math.random() * 40;
+    let rotationSpeedX = (Math.random() - 0.5) * 2;
+    let rotationSpeedY = 1 + Math.random() * 3;
+    
+    let seed = Math.random() * 100;
+    let rotX = Math.random() * 360;
+    let rotY = Math.random() * 360;
+    let rotZ = (Math.random() - 0.5) * 40;
+
+    el.style.left = xPos + 'px';
+    el.style.top = yPos + 'px';
+    moneyContainer.appendChild(el);
+
+    const billObj = {
+      element: el,
+      x: xPos,
+      y: yPos,
+      fallSpeed,
+      swaySpeed,
+      swayAmount,
+      rotationSpeedX,
+      rotationSpeedY,
+      seed,
+      rotX,
+      rotY,
+      rotZ
+    };
+
+    // Explode event logic trigger
+    el.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+      explodeBill(billObj);
+    });
+    el.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+      explodeBill(billObj);
+    }, { passive: true });
+
+    activeBills.push(billObj);
+  }
+
+  function explodeBill(bill) {
+    // Remove element representation cleanly from loops
+    activeBills = activeBills.filter(b => b !== bill);
+    
+    const rect = bill.element.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    bill.element.remove();
+
+    // Create micro fragment shrapnel clusters
+    const shardCount = 18;
+    for (let i = 0; i < shardCount; i++) {
+      const shard = document.createElement('div');
+      shard.className = 'bill-shard';
+      
+      // Randomize shade matrix slightly for debris realism
+      if (Math.random() > 0.5) shard.style.background = '#c3dec4';
+
+      shard.style.left = centerX + 'px';
+      shard.style.top = centerY + 'px';
+      moneyContainer.appendChild(shard);
+
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = 3 + Math.random() * 8;
+      let sX = Math.cos(angle) * velocity;
+      let sY = Math.sin(angle) * velocity;
+      let sRot = Math.random() * 360;
+      let sRotSpeed = (Math.random() - 0.5) * 25;
+      let opacity = 1;
+      let curX = centerX;
+      let curY = centerY;
+
+      function updateShard() {
+        sY += 0.2; // Artificial gravity component acceleration
+        curX += sX;
+        curY += sY;
+        opacity -= 0.02;
+        sRot += sRotSpeed;
+
+        shard.style.left = curX + 'px';
+        shard.style.top = curY + 'px';
+        shard.style.transform = `rotate(${sRot}deg)`;
+        shard.style.opacity = opacity;
+
+        if (opacity <= 0) {
+          shard.remove();
+        } else {
+          requestAnimationFrame(updateShard);
+        }
+      }
+      requestAnimationFrame(updateShard);
+    }
+  }
+
+  // Animation render loop handler for global bills updates
+  function updateMoneyEngine() {
+    for (let i = activeBills.length - 1; i >= 0; i--) {
+      const b = activeBills[i];
+      b.y += b.fallSpeed;
+      b.seed += b.swaySpeed;
+      
+      // Apply sine wave structural shift loops to mimic physical turbulence drifting
+      const currentX = b.x + Math.sin(b.seed) * b.swayAmount;
+      b.rotX += b.rotationSpeedX;
+      b.rotY += b.rotationSpeedY;
+
+      b.element.style.top = b.y + 'px';
+      b.element.style.left = currentX + 'px';
+      b.element.style.transform = `rotateX(${b.rotX}deg) rotateY(${b.rotY}deg) rotateZ(${b.rotZ}deg)`;
+
+      // Cleanup elements passing screen borders safely
+      if (b.y > window.innerHeight + 60) {
+        b.element.remove();
+        activeBills.splice(i, 1);
+      }
+    }
+    requestAnimationFrame(updateMoneyEngine);
+  }
+
+  // Set loops intervals safely
+  setInterval(spawnBill, 700);
+  requestAnimationFrame(updateMoneyEngine);
+
+  /* ── Initialization ── */
   loadSong(idx, false);
-</script>
-</body>
-</html>
+</script></body></html>
