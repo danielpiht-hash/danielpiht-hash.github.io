@@ -1,327 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draggable Music Widget</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: system-ui, -apple-system, sans-serif;
-            /* Full-bleed background wallpaper */
-            background: url('wallpaper.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-
-        /* Combined Interactive & Draggable Widget Container */
-        #widget-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 320px; /* Scaled down smaller and optimized for a desktop/mobile widget */
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 24px;
-            padding: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.25);
-            cursor: grab; /* Shows user the entire widget can be dragged */
-            z-index: 10;
-            touch-action: none; /* Block browser interference on mobile drag */
-            transition: box-shadow 0.15s ease, transform 0.1s ease;
-        }
-
-        #widget-container:active {
-            cursor: grabbing;
-            transform: translate(-50%, -50%) scale(1.02);
-            box-shadow: 0 30px 50px rgba(0,0,0,0.5);
-        }
-
-        /* SVG Inner Container */
-        .svg-layout-container {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* CSS rules applied to internal interactive SVG path buttons */
-        .interactive-btn {
-            cursor: pointer !important;
-            transition: opacity 0.2s ease, filter 0.2s ease;
-        }
-        .interactive-btn:hover {
-            opacity: 0.85;
-            filter: brightness(1.3);
-        }
-        .interactive-btn:active {
-            filter: brightness(0.9);
-        }
-
-        /* Feedback Toast Notification */
-        #status-toast {
-            position: fixed;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 10px 22px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 500;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-    </style>
-</head>
+<head<meta charset="UTF-8" />
+<meta="viewport" content="width=device-width,-scale=1 />
+<title>Interactive Music Widget</title>
+<style>
+  body, html    margin: 0; padding: ; height: 100%;
+    background: url('wallpaper.jpg') no-repeat center center fixed;
+ background-size:;
+    overflow: hidden;
+    user-select: none;
+  }
+  #widget    position:;
+    top 50px; left: 50px    width: 300px;
+    cursor: grab;
+   -select none;
+   #widget:active {
+    cursor: grabbing;
+ }
+style>
+</>
 <body>
 
-    <div id="widget-container">
-        <div class="svg-layout-container" id="svg-wrapper">
-            </div>
-    </div>
+<object id="widget" type="image/svg+xml" data="layout.svg"></object>
 
-    <div id="status-toast">Status Update</div>
+<script>
+ // Audio setup  const audio = new Audio('onmusic.mp3');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- 1. INITIALIZE AUDIO OBJECT ---
-            const audio = new Audio('maxonmusic.mp3');
-            audio.loop = false;
+  const widget = document.getElementById('widget');
+  widget.addEvent('load', =>    const svgDoc =.contentDocument;
 
-            // --- 2. FETCH, MODIFY, AND INJECT SVG CODE ---
-            const svgWrapper = document.getElementById('svg-wrapper');
-            
-            fetch('layout.svg')
-                .then(response => {
-                    if (!response.ok) throw new Error('layout.svg asset not found');
-                    return response.text();
-                })
-                .then(svgText => {
-                    svgWrapper.innerHTML = svgText;
-                    integrateAlbumArtAndControls();
-                })
-                .catch(err => {
-                    console.error('Error handling UI asset configurations:', err);
-                    // Minimal fallback engine if layout.svg asset fails to load
-                    svgWrapper.innerHTML = `
-                        <div style="color: white; text-align: center; padding: 15px;" onmousedown="e => e.stopPropagation()">
-                            <img src="album.jpeg" style="width:120px; height:120px; border-radius:12px; margin-bottom:10px; object-fit:cover;">
-                            <div style="display:flex; justify-content:center; gap:8px;">
-                                <button id="fallback-play" style="padding:6px 12px; cursor:pointer;">Play</button>
-                                <button id="fallback-pause" style="padding:6px 12px; cursor:pointer;">Pause</button>
-                                <button id="fallback-skip" style="padding:6px 12px; cursor:pointer;">Restart</button>
-                            </div>
-                        </div>
-                    `;
-                    setupFallbackControls();
-                });
+    // Query buttons in SVG by id or class containing keywords
+    const playBtn = svgDoc.querySelector('[id*=play], [class*=play    const pauseBtns = svgDoc.querySelectorAll('[id*=pause], [class*=pause]');
+    const skipBtn = svgDoc.querySelector('[id*=skip], [class*=skip]    if (Btn) {
+      playBtn.style.cursor = 'pointer';
+      playBtn.addEvent('click', () => {
+        audio.play();
+         }
 
-            function integrateAlbumArtAndControls() {
-                const svgElement = svgWrapper.querySelector('svg');
-                if (!svgElement) return;
+    pauseBtns.forEach(pauseBtn => {
+      pauseBtn.style.cursor = 'pointer';
+      pauseBtn.addEventListener('click', () => {
+        audio.pause();
+      });
+    });
 
-                // Make SVG scale cleanly to match our smaller container frame
-                svgElement.setAttribute('width', '100%');
-                svgElement.setAttribute('height', '100%');
+    if (skipBtn)      skipBtn.cursor = 'pointer';
+      skipBtn.addEventListener('click () => {
+        audio.currentTime = 0;
+ audio.play();
+      });
+    }
+  });
 
-                // Create a global definition defs layer inside the SVG if it doesn't exist
-                let defs = svgElement.querySelector('defs');
-                if (!defs) {
-                    defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-                    svgElement.insertBefore(defs, svgElement.firstChild);
-                }
+  // Drag functionality
+  (function() {
+    const widgetEl document.getElementById('widget');
+    let is =;
+    let offsetX 0;
+    let offsetY = ;
 
-                // Create an SVG image pattern using album.jpeg
-                const patternId = "albumArtPattern";
-                const pattern = document.createElementNS('http://www.w3.org/2000/svg', 'pattern');
-                pattern.setAttribute('id', patternId);
-                pattern.setAttribute('width', '100%');
-                pattern.setAttribute('height', '100%');
-                pattern.setAttribute('patternContentUnits', 'objectBoundingBox');
+    widgetEl.addEventListenermousedown', () => {
+      isDragging =;
+      const rect = widgetEl.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+     El.style.cursor = 'grabbing';
+      e.prevent();
+    });
 
-                const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', 'album.jpeg');
-                image.setAttribute('width', '1');
-                image.setAttribute('height', '1');
-                image.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    windowEventListener('', (e) => {
+      if (!isDragging) return      let left = e.clientX - offsetX;
+      let top = e.clientY -Y;
 
-                pattern.appendChild(image);
-                defs.appendChild(pattern);
+      Keep inside viewport
+      const max = window.innerWidth - widgetEl.offsetWidth;
+      const maxTop = window.innerHeight - widgetElHeight;
+      left = Math.min(Math.max(0, left), maxLeft);
+      top = Math.min(Math.max(0, top), maxTop);
 
-                /* Apply album.jpeg pattern texture into your layout cover shape layer.
-                   Looks for an ID tag titled #cover or variations inside layout.svg. 
-                */
-                const coverTarget = svgElement.querySelector('#cover') || svgElement.querySelector('[id*='cover']');
-                if (coverTarget) {
-                    coverTarget.style.fill = `url(#${patternId})`;
-                } else {
-                    // Smart fallback: If no explicit #cover element is found, apply it to the largest layout rect background
-                    const rects = Array.from(svgElement.querySelectorAll('rect'));
-                    if (rects.length > 1) {
-                        rects[1].style.fill = `url(#${patternId})`; // Commonly the secondary layer block
-                    }
-                }
+      widgetEl.style.left = left + 'px';
+      widgetEl.style.top = top + '';
+    });
 
-                /* Query interactive control paths mapped inside layout.svg elements */
-                const btnPlay = svgElement.querySelector('#play') || svgElement.querySelector('[id*="play"]');
-                const btnPause1 = svgElement.querySelector('#pause1') || svgElement.querySelector('[id*="pause"]');
-                const btnPause2 = svgElement.querySelector('#pause2') || svgElement.querySelector('[id*="pause2"]');
-                const btnSkip = svgElement.querySelector('#skip') || svgElement.querySelector('[id*="skip"]');
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        widgetEl.style = 'grab      }
+    });
+ ();
+</script>
 
-                const controlGroup = [btnPlay, btnPause1, btnPause2, btnSkip].filter(Boolean);
-                controlGroup.forEach(btn => {
-                    btn.classList.add('interactive-btn');
-                    // Stop mouse events on buttons from initiating a layout component drag action
-                    btn.addEventListener('mousedown', (e) => e.stopPropagation());
-                    btn.addEventListener('touchstart', (e) => e.stopPropagation());
-                });
-
-                // Attach button event handlers
-                if (btnPlay) btnPlay.addEventListener('click', () => handleAudioControl('PLAY'));
-                if (btnPause1) btnPause1.addEventListener('click', () => handleAudioControl('PAUSE'));
-                if (btnPause2) btnPause2.addEventListener('click', () => handleAudioControl('PAUSE'));
-                if (btnSkip) btnSkip.addEventListener('click', () => handleAudioControl('RESTART'));
-            }
-
-            function setupFallbackControls() {
-                const fallbacks = ['fallback-play', 'fallback-pause', 'fallback-skip'];
-                fallbacks.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        el.addEventListener('mousedown', (e) => e.stopPropagation());
-                        el.addEventListener('touchstart', (e) => e.stopPropagation());
-                    }
-                });
-                document.getElementById('fallback-play')?.addEventListener('click', () => handleAudioControl('PLAY'));
-                document.getElementById('fallback-pause')?.addEventListener('click', () => handleAudioControl('PAUSE'));
-                document.getElementById('fallback-skip')?.addEventListener('click', () => handleAudioControl('RESTART'));
-            }
-
-            // Centralized Audio Engine System
-            function handleAudioControl(action) {
-                switch(action) {
-                    case 'PLAY':
-                        audio.play()
-                            .then(() => showToast("🔊 Playing maxonmusic.mp3"))
-                            .catch(err => {
-                                console.log("Browser restriction warning:", err);
-                                showToast("Click anywhere on the screen first to enable audio!");
-                            });
-                        break;
-                        
-                    case 'PAUSE':
-                        audio.pause();
-                        showToast("⏸️ Music Paused");
-                        break;
-                        
-                    case 'RESTART':
-                        audio.currentTime = 0; // Reset head to start
-                        audio.play()
-                            .then(() => showToast("⏭️ Track Restarted"))
-                            .catch(() => showToast("⏭️ Track Reset to 0:00"));
-                        break;
-                }
-            }
-
-            // --- 3. ENTIRE WIDGET CONTAINER DRAG MANAGEMENT (MOUSE & TOUCH) ---
-            const widget = document.getElementById('widget-container');
-            let isDragging = false;
-            let startX, startY, initialLeft, initialTop;
-
-            function startDrag(e) {
-                // Only treat normal left clicks or touches as valid drag triggers
-                if (e.type === 'mousedown' && e.button !== 0) return;
-                
-                isDragging = true;
-                
-                const clientX = e.clientX || e.touches[0].clientX;
-                const clientY = e.clientY || e.touches[0].clientY;
-                
-                startX = clientX;
-                startY = clientY;
-                
-                // Read calculated active offsets relative to viewport coordinates
-                const rect = widget.getBoundingClientRect();
-                initialLeft = rect.left + rect.width / 2;
-                initialTop = rect.top + rect.height / 2;
-                
-                document.addEventListener('mousemove', dragMove);
-                document.addEventListener('mouseup', endDrag);
-                document.addEventListener('touchmove', dragMove, { passive: false });
-                document.addEventListener('touchend', endDrag);
-            }
-
-            function dragMove(e) {
-                if (!isDragging) return;
-                if (e.cancelable) e.preventDefault(); // Turn off page rubber-banding shifts on mobile devices
-
-                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-
-                const deltaX = clientX - startX;
-                const deltaY = clientY - startY;
-
-                let targetX = initialLeft + deltaX;
-                let targetY = initialTop + deltaY;
-
-                // Screen viewport boundary restrictions
-                const minX = widget.offsetWidth / 2;
-                const minY = widget.offsetHeight / 2;
-                const maxX = window.innerWidth - (widget.offsetWidth / 2);
-                const maxY = window.innerHeight - (widget.offsetHeight / 2);
-
-                if (targetX < minX) targetX = minX;
-                if (targetX > maxX) targetX = maxX;
-                if (targetY < minY) targetY = minY;
-                if (targetY > maxY) targetY = maxY;
-
-                // Use percentages to maintain layout positioning calculations smoothly
-                widget.style.left = `${(targetX / window.innerWidth) * 100}%`;
-                widget.style.top = `${(targetY / window.innerHeight) * 100}%`;
-            }
-
-            function endDrag() {
-                isDragging = false;
-                document.removeEventListener('mousemove', dragMove);
-                document.removeEventListener('mouseup', endDrag);
-                document.removeEventListener('touchmove', dragMove);
-                document.removeEventListener('touchend', endDrag);
-            }
-
-            // Assign container element event listeners
-            widget.addEventListener('mousedown', startDrag);
-            widget.addEventListener('touchstart', startDrag, { passive: true });
-
-            // --- 4. TOAST ALERTS POPUP MANAGEMENT ---
-            const toastElement = document.getElementById('status-toast');
-            let toastTimeout;
-
-            function showToast(message) {
-                clearTimeout(toastTimeout);
-                toastElement.textContent = message;
-                toastElement.style.opacity = '1';
-                toastTimeout = setTimeout(() => {
-                    toastElement.style.opacity = '0';
-                }, 1800);
-            }
-        });
-    </script>
 </body>
 </html>
