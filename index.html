@@ -37,7 +37,7 @@
       z-index: 0;
     }
 
-    /* ── Smooth White Music Waves ── */
+    /* ── Floating Music Notes ── */
     #music-notes-container {
       position: fixed;
       inset: 0;
@@ -48,14 +48,16 @@
 
     .bg-note-wave {
       position: absolute;
-      width: 180px;
-      height: 40px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.12);
-      filter: blur(14px);
+      font-size: 42px;
+      color: rgba(255,255,255,0.22);
+      filter: blur(2px);
       opacity: 0;
       will-change: transform, opacity;
-      transform-origin: center;
+      user-select: none;
+
+      text-shadow:
+        0 0 12px rgba(255,255,255,0.18),
+        0 0 24px rgba(255,255,255,0.10);
     }
 
     /* ── Zero-Lag Money Styles ── */
@@ -555,105 +557,43 @@
       }
     });
 
-  document.getElementById('btn-pause1')
-    .addEventListener('click', () => {
-
-      if (playing) {
-        audio.pause();
-        setPlaying(false);
-        showToast('Paused');
-      }
-
-    });
-
-  document.getElementById('btn-skip')
-    .addEventListener('click', () => {
-
-      audio.currentTime = 0;
-      showToast('Track Restarted');
-
-    });
-
-  progressWrap.addEventListener('click', e => {
-
-    if (!audio.duration) return;
-
-    const rect = progressBg.getBoundingClientRect();
-
-    const ratio = Math.min(
-      Math.max((e.clientX - rect.left) / rect.width, 0),
-      1
-    );
-
-    audio.currentTime = ratio * audio.duration;
-
-  });
-
-  audio.addEventListener('timeupdate', () => {
-
-    if (!audio.duration) return;
-
-    const pct = (audio.currentTime / audio.duration) * 100;
-
-    progressFill.style.width = pct + '%';
-    progressThumb.style.left = pct + '%';
-
-    timeCur.textContent = fmt(audio.currentTime);
-
-  });
-
-  audio.addEventListener('loadedmetadata', () => {
-    timeDur.textContent = fmt(audio.duration);
-  });
-
-  audio.addEventListener('ended', () => {
-
-    audio.currentTime = 0;
-
-    setPlaying(false);
-
-    showToast('Track Finished');
-
-  });
-
-  volSlider.addEventListener('input', () => {
-    audio.volume = parseFloat(volSlider.value);
-  });
-
-  /* ── Smooth White Music Waves Engine ── */
+  /* ── Floating Music Notes Waves Engine ── */
 
   const notesContainer =
     document.getElementById('music-notes-container');
+
+  const NOTE_CHARS = ['♪', '♫', '♩', '♬'];
 
   let activeNotes = [];
 
   function spawnNoteWave() {
 
-    if (activeNotes.length >= 7) return;
+    if (activeNotes.length >= 12) return;
 
     const el = document.createElement('div');
 
     el.className = 'bg-note-wave';
 
-    const width = 120 + Math.random() * 180;
-    const height = 18 + Math.random() * 20;
+    el.textContent =
+      NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)];
 
-    el.style.width = width + 'px';
-    el.style.height = height + 'px';
+    const size = 30 + Math.random() * 36;
+
+    el.style.fontSize = size + 'px';
 
     let xPos = Math.random() * window.innerWidth;
-    let yPos = window.innerHeight + 60;
+    let yPos = window.innerHeight + 80;
+
+    let floatSpeed = 0.4 + Math.random() * 0.7;
 
     let waveSeed = Math.random() * 100;
-    let waveSpeed = 0.008 + Math.random() * 0.006;
-    let waveAmount = 18 + Math.random() * 20;
-
-    let floatSpeed = 0.35 + Math.random() * 0.4;
+    let waveSpeed = 0.008 + Math.random() * 0.01;
+    let waveAmount = 12 + Math.random() * 18;
 
     let opacity = 0;
-    let maxOpacity = 0.08 + Math.random() * 0.08;
+    let maxOpacity = 0.10 + Math.random() * 0.18;
 
-    let scale = 0.9 + Math.random() * 0.4;
+    let scale = 0.8 + Math.random() * 0.6;
 
     notesContainer.appendChild(el);
 
@@ -661,16 +601,15 @@
       element: el,
       x: xPos,
       y: yPos,
+      floatSpeed,
       waveSeed,
       waveSpeed,
       waveAmount,
-      floatSpeed,
       opacity,
       maxOpacity,
       scale,
       fadingIn: true
     });
-
   }
 
   function updateNotesEngine() {
@@ -688,7 +627,7 @@
 
       if (n.fadingIn) {
 
-        n.opacity += 0.003;
+        n.opacity += 0.004;
 
         if (n.opacity >= n.maxOpacity) {
 
@@ -698,8 +637,8 @@
         }
       }
 
-      if (n.y < window.innerHeight * 0.35) {
-        n.opacity -= 0.0015;
+      if (n.y < window.innerHeight * 0.28) {
+        n.opacity -= 0.002;
       }
 
       n.element.style.opacity = n.opacity;
@@ -708,7 +647,7 @@
         `translate3d(${n.x + waveX}px, ${n.y}px, 0)
          scale(${n.scale})`;
 
-      if (n.y < -80 || n.opacity <= 0) {
+      if (n.y < -120 || n.opacity <= 0) {
 
         n.element.remove();
 
@@ -718,10 +657,13 @@
     }
 
     requestAnimationFrame(updateNotesEngine);
-
   }
 
-  setInterval(spawnNoteWave, 1800);
+  setInterval(spawnNoteWave, 900);
+
+  for (let i = 0; i < 6; i++) {
+    spawnNoteWave();
+  }
 
   requestAnimationFrame(updateNotesEngine);
 
