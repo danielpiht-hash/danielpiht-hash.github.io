@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 212 450">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #c2b59b;
+      }
+
+      .cls-1, .cls-2 {
+        stroke: #231f20;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-2 {
+        fill: #231f20;
+      }
+    </style>
+  </defs>
+  <rect id="Backround" class="cls-1" x=".5" y=".5" width="211" height="449"/>
+  <path class="cls-2" d="M210.77.5H.62v373h-.12v76h211V.5h-.73ZM9.62,373.5V9.5h192.88v364H9.62Z"/>
+  <path id="Play" class="cls-1" d="M19.24,394.55c12.9-10.33,43.8,7.44,43.12,18.9-.65,11.03-31.05,25.61-43.71,13.59-8.27-7.85-7.7-25.85.59-32.49Z"/>
+  <rect id="Pause" class="cls-1" x="110.5" y="392.3" width="10.63" height="38.4"/>
+  <rect id="Pause-2" data-name="Pause" class="cls-1" x="89.23" y="392.3" width="10.63" height="38.4"/>
+  <path id="Skip" class="cls-1" d="M155.11,393.84c2.26-4.38,23.39-3.6,30.72,9.45.6,1.07,4.06,7.47,1.77,14.18-5.3,15.58-35.59,15.26-36.99,11.31-1-2.8,12.92-6.39,13.95-16.04,1.01-9.45-11.36-15.21-9.45-18.9Z"/>
+</svg>

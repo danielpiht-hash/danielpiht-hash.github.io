@@ -3,274 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musical Palm Beach Waves</title>
+    <title>Interactive Music Player</title>
     <style>
-        /* Reset and layout */
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: sans-serif;
+            font-family: Arial, sans-serif;
+            /* Full-screen background wallpaper */
+            background: url('wallpaper.jpg') no-repeat center center fixed;
+            background-size: cover;
         }
 
-        /* Aesthetic tropical beach background */
-        .beach-background {
+        /* Draggable Widget Container */
+        #music-widget {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 10%;
+            left: 10%;
+            width: 280px;
+            height: 600px;
+            background-color: #231F20; /* Matches the dark SVG border */
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            cursor: grab;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #music-widget:active {
+            cursor: grabbing;
+        }
+
+        /* Song Cover Area (Top portion of the widget) */
+        #cover-art-target {
+            width: 100%;
+            height: 480px; 
+            background-color: #C2B69D; /* Matches the beige SVG inner background */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #cover-art-target img {
+            width: 85%;
+            height: 50%;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Controls Area (Bottom portion embedding the SVG) */
+        .controls-container {
+            width: 100%;
+            height: 120px;
+            position: relative;
+            background-color: #231F20;
+        }
+
+        .controls-container svg {
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                to bottom,
-                #00a6ff 0%,    /* Deep sky blue */
-                #7adcff 35%,   /* Light sky blue */
-                #ffffff 50%,   /* Horizon glare */
-                #a0f1ff 55%,   /* Shallow turquoise water */
-                #34d1fc 75%,   /* Mid-depth water */
-                #ffffff 100%   /* Shoreline fade */
-            );
-            z-index: 1;
+            display: block;
         }
 
-        /* Stylized SVG Palm Trees on a small island (mimicking the image layout) */
-        .island {
+        /* Transparent Interactive Button Overlays */
+        .btn-overlay {
             position: absolute;
-            left: 5%;
-            top: 38%;
-            width: 250px;
-            height: 150px;
-            z-index: 2;
-            opacity: 0.85;
-            pointer-events: none;
+            bottom: 15px;
+            height: 55px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0); /* Invisible but clickable */
+            border: none;
+            outline: none;
+            border-radius: 50%;
+            transition: background 0.2s ease;
         }
 
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 3;
-            cursor: crosshair;
+        /* Subtle visual feedback on hover/active */
+        .btn-overlay:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .btn-overlay:active {
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Floating title overlay */
-        .title {
+        /* Precise positioning over the SVG paths */
+        #play-btn {
+            left: 15px;
+            width: 70px;
+            border-radius: 40%;
+        }
+
+        #pause-btn {
+            left: 110px;
+            width: 50px;
+            border-radius: 10px;
+        }
+
+        #skip-btn {
+            right: 20px;
+            width: 60px;
+            border-radius: 40%;
+        }
+
+        /* Track Info Text Overlay */
+        #track-info {
             position: absolute;
-            top: 30px;
+            bottom: 20px;
             width: 100%;
             text-align: center;
-            color: #ffffff;
+            color: #231F20;
             font-weight: bold;
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-            text-shadow: 0 2px 10px rgba(0, 166, 255, 0.5);
-            z-index: 4;
-            pointer-events: none;
-            user-select: none;
-            opacity: 0.8;
+            font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
 
-    <div class="beach-background"></div>
-    <div class="title">HOVER TO EXPLODE THE MUSIC WAVES</div>
+    <div id="music-widget">
+        <div id="cover-art-target">
+            <img id="cover-image" src="" alt="Album Cover">
+            <div id="track-info">Loading...</div>
+        </div>
 
-    <svg class="island" viewBox="0 0 200 100">
-        <path d="M 0 80 Q 50 70 110 85 Q 160 90 200 95 L 200 100 L 0 100 Z" fill="#e6d5b8" opacity="0.9" />
-        <path d="M 0 82 Q 60 75 120 88 Z" fill="#27ae60" stroke="#27ae60" stroke-width="3" />
-        <path d="M 40 80 Q 30 50 15 25" stroke="#8b5a2b" stroke-width="4" fill="none" />
-        <path d="M 15 25 Q 0 25 5 40 M 15 25 Q 15 10 0 10 M 15 25 Q 35 15 40 30 M 15 25 Q 30 35 25 50" stroke="#2ecc71" stroke-width="3" fill="none" />
-        <path d="M 65 82 Q 60 55 50 35" stroke="#8b5a2b" stroke-width="3.5" fill="none" />
-        <path d="M 50 35 Q 35 35 40 50 M 50 35 Q 50 20 35 15 M 50 35 Q 70 25 75 40 M 50 35 Q 65 45 60 60" stroke="#2ecc71" stroke-width="2.5" fill="none" />
-    </svg>
+        <div class="controls-container">
+            <svg viewBox="0 0 216 462" preserveAspectRatio="xMidYMax meet">
+                <g id="Layer_1">
+                    <rect x="4.5" y="4.5" fill="#C2B69D" stroke="#231F20" stroke-width="9" width="207" height="453"/>
+                    <rect x="0" y="375" fill="#231F20" width="216" height="87"/>
+                    
+                    <path fill="#C2B69D" d="M12.7,419.9c2-12.8,12-22.1,24.8-22.1s27.5,13.8,27.5,26.6c0,8.7-7.2,14.7-15.9,14.7H28.1 C17.3,439.1,11.3,429.3,12.7,419.9z"/>
+                    <rect x="91.4" y="394.9" fill="#C2B69D" width="9" height="39"/>
+                    <rect x="114.7" y="394.9" fill="#C2B69D" width="9" height="39"/>
+                    <path fill="#C2B69D" d="M191.6,413.7c0,11.2-8.5,19.9-19.7,19.9c-10.7,0-18.4-12-18.4-12s12.5-12,21.5-12 C185.3,393.7,191.6,402.4,191.6,413.7z"/>
+                </g>
+            </svg>
 
-    <canvas id="musicCanvas"></canvas>
+            <button class="btn-overlay" id="play-btn" title="Play"></button>
+            <button class="btn-overlay" id="pause-btn" title="Pause"></button>
+            <button class="btn-overlay" id="skip-btn" title="Restart Song"></button>
+        </div>
+    </div>
+
+    <audio id="audio-player" src="maxonmusic.mp3"></audio>
 
     <script>
-        const canvas = document.getElementById('musicCanvas');
-        const ctx = canvas.getContext('2d');
+        // --- Track Information Configuration ---
+        const trackData = {
+            title: "Maxon Music",
+            audio: "maxonmusic.mp3", 
+            cover: "https://picsum.photos/id/1025/200/300" // Default cover art placeholder
+        };
 
-        // Resize handler
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        const audio = document.getElementById('audio-player');
+        const coverImage = document.getElementById('cover-image');
+        const trackInfo = document.getElementById('track-info');
+
+        // Load setup
+        function initTrack() {
+            audio.src = trackData.audio;
+            coverImage.src = trackData.cover;
+            trackInfo.textContent = trackData.title;
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
 
-        // Mouse tracking
-        const mouse = { x: null, y: null, radius: 80 };
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
+        // --- Audio Control Functional Logic ---
+
+        // Play: Starts playing the track from its current position
+        document.getElementById('play-btn').addEventListener('click', () => {
+            audio.play().catch(e => console.log("Playback interaction handled."));
         });
-        window.addEventListener('mouseleave', () => {
-            mouse.x = null;
-            mouse.y = null;
+
+        // Pause: Freezes the track at its current position without resetting
+        document.getElementById('pause-btn').addEventListener('click', () => {
+            audio.pause();
         });
 
-        // Musical note characters to randomly pick from
-        const noteTypes = ['♩', '♪', '♫', '♬', '♭', '♮', '♯', '𝄞'];
+        // Skip: Restarts the track from the beginning and forces replay
+        document.getElementById('skip-btn').addEventListener('click', () => {
+            audio.currentTime = 0;
+            audio.play().catch(e => {});
+        });
 
-        // Particle Class for the Explosions
-        class Particle {
-            constructor(x, y, char, size, color) {
-                this.x = x;
-                this.y = y;
-                this.char = char;
-                this.size = size;
-                this.color = color;
-                // Exploding velocity vectors
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 4 + 2;
-                this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed;
-                this.alpha = 1;
-                this.decay = Math.random() * 0.015 + 0.01;
-                this.rotation = Math.random() * Math.PI;
-                this.rotSpeed = (Math.random() - 0.5) * 0.1;
-            }
+        // Setup widget details on startup
+        initTrack();
 
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += 0.05; // Light gravity pull downwards
-                this.alpha -= this.decay;
-                this.rotation += this.rotSpeed;
-            }
+        // --- Drag and Drop Interface Framework ---
+        const widget = document.getElementById('music-widget');
+        let isDragging = false;
+        let offsetX, offsetY;
 
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = this.color;
-                ctx.font = `${this.size}px sans-serif`;
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation);
-                ctx.fillText(this.char, 0, 0);
-                ctx.restore();
-            }
-        }
+        widget.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('btn-overlay')) return;
+            
+            isDragging = true;
+            offsetX = e.clientX - widget.getBoundingClientRect().left;
+            offsetY = e.clientY - widget.getBoundingClientRect().top;
+        });
 
-        // Wave Node Class (The structural points making up the flowing waves)
-        class WaveNode {
-            constructor(x, baseY, offset, char, size) {
-                this.x = x;
-                this.baseY = baseY;
-                this.y = baseY;
-                this.offset = offset; // Phase shift for sine wave
-                this.char = char;
-                this.size = size;
-                this.isDead = false;
-            }
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            let x = e.clientX - offsetX;
+            let y = e.clientY - offsetY;
 
-            update(time, waveFrequency, waveAmplitude, waveSpeed) {
-                // Harmonic undulating motion
-                this.y = this.baseY + Math.sin(this.x * waveFrequency + time * waveSpeed + this.offset) * waveAmplitude;
+            // Restricts widget within the window frame limits
+            x = Math.max(0, Math.min(x, window.innerWidth - widget.offsetWidth));
+            y = Math.max(0, Math.min(y, window.innerHeight - widget.offsetHeight));
 
-                // Check collision with mouse for the "Explosion" trigger
-                if (mouse.x !== null && mouse.y !== null) {
-                    const dx = this.x - mouse.x;
-                    const dy = this.y - mouse.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+            widget.style.left = `${x}px`;
+            widget.style.top = `${y}px`;
+        });
 
-                    if (distance < mouse.radius) {
-                        this.isDead = true;
-                        // Spawn explosion fragments
-                        for (let i = 0; i < 3; i++) {
-                            particles.push(new Particle(this.x, this.y, this.char, this.size, 'rgba(255,255,255,0.9)'));
-                        }
-                    }
-                }
-            }
-
-            draw() {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-                ctx.font = `${this.size}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(this.char, this.x, this.y);
-            }
-        }
-
-        // System arrays
-        let waves = [];
-        let particles = [];
-        let time = 0;
-
-        // Function to initialize/repopulate the music wave structures
-        function createWaves() {
-            waves = [];
-            // Generate 4 distinct overlapping waves moving at different heights
-            const waveConfigs = [
-                { baseY: canvas.height * 0.55, amp: 50, freq: 0.003, speed: 1.5, size: 24, density: 25 },
-                { baseY: canvas.height * 0.68, amp: 40, freq: 0.004, speed: -1.2, size: 18, density: 20 },
-                { baseY: canvas.height * 0.80, amp: 60, freq: 0.002, speed: 2.0, size: 30, density: 30 },
-                { baseY: canvas.height * 0.45, amp: 30, freq: 0.005, speed: -0.8, size: 16, density: 15 }
-            ];
-
-            waveConfigs.forEach(config => {
-                let waveNodes = [];
-                // Distribute notes horizontally across the screen width
-                for (let x = 0; x < canvas.width; x += config.density) {
-                    const randomNote = noteTypes[Math.floor(Math.random() * noteTypes.length)];
-                    // Slight variation in size and offset to make it look organic
-                    const sizeVar = config.size + (Math.random() * 6 - 3);
-                    const phaseOffset = Math.random() * 0.5;
-                    waveNodes.push(new WaveNode(x, config.baseY, phaseOffset, randomNote, sizeVar));
-                }
-                waves.push({ nodes: waveNodes, config: config });
-            });
-        }
-
-        createWaves();
-        // Re-generate if screen configuration changes drastically
-        window.addEventListener('resize', createWaves);
-
-        // Main Animation Loop
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            time += 0.02;
-
-            // 1. Draw and update Waves
-            waves.forEach(wave => {
-                wave.nodes.forEach(node => {
-                    if (!node.isDead) {
-                        node.update(time, wave.config.freq, wave.config.amp, wave.config.speed);
-                        node.draw();
-                    }
-                });
-            });
-
-            // 2. Draw and update Active Explosion Particles
-            for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].update();
-                particles[i].draw();
-                if (particles[i].alpha <= 0) {
-                    particles.splice(i, 1);
-                }
-            }
-
-            // 3. Periodically respawn notes that exploded offscreen to keep waves alive
-            waves.forEach(wave => {
-                wave.nodes.forEach(node => {
-                    if (node.isDead && Math.random() < 0.005) { // 0.5% chance per frame to regenerate
-                        node.isDead = false;
-                    }
-                });
-            });
-
-            requestAnimationFrame(animate);
-        }
-
-        animate();
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
     </script>
 </body>
 </html>
