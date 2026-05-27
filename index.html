@@ -308,6 +308,28 @@
       text-align: center;
       width: 460px;
     }
+
+    /* ── NEW: Glock Guns & Bullets ── */
+    .glock {
+      position: fixed;
+      width: 95px;
+      height: 48px;
+      z-index: 6;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .bullet {
+      position: fixed;
+      width: 6px;
+      height: 22px;
+      background: linear-gradient(#ffdd77, #ffaa00);
+      border-radius: 2px;
+      box-shadow: 0 0 8px #ffdd00;
+      z-index: 7;
+      pointer-events: none;
+      opacity: 0.95;
+    }
   </style>
 </head>
 <body>
@@ -365,15 +387,21 @@
 
   <!-- TV Group -->
   <div id="tv-group">
-    <!-- Added TV -->
     <div id="tv">
       <video id="music-video" loop muted>
         <source src="musicvideo.mp4" type="video/mp4">
       </video>
     </div>
-
-    <!-- Added TV Title -->
     <div id="tv-title">Hate The Morning (Official Music Video) - Maxon Margiela</div>
+  </div>
+
+  <!-- NEW: Glocks -->
+  <div id="glock-left" class="glock" style="left: 18%; top: 45%; transform: rotate(-12deg);">
+    <img src="https://i.ibb.co.com/0jKz7YJ/glock-extended.png" width="95" height="48" alt="Glock">
+  </div>
+
+  <div id="glock-right" class="glock" style="right: 18%; top: 45%; transform: rotate(12deg);">
+    <img src="https://i.ibb.co.com/0jKz7YJ/glock-extended.png" width="95" height="48" alt="Glock">
   </div>
 
   <div id="toast"></div>
@@ -718,16 +746,11 @@
         <path d="M88,32 L96,32 L94,27 L90,27 Z" fill="#9c7a46" opacity="0.9"/>
         <circle cx="92" cy="27" r="2" fill="#e3edd5"/>
 
-        <!-- Enhanced Realistic Burning Effect -->
         <path d="M-4,12 Q8,8 18,22 Q12,35 4,46 L-4,46 Z" fill="#ff3300" opacity="0.92"/>
         <path d="M-3,15 Q14,11 21,26 Q15,37 6,46 L-3,46 Z" fill="#ff8800" opacity="0.88"/>
         <path d="M-2,19 Q11,16 19,29 Q13,39 7,46 L-2,46 Z" fill="#ffbb00" opacity="0.85"/>
         <path d="M-1,24 Q9,22 16,32 Q11,41 8,46 L-1,46 Z" fill="#ffeeaa" opacity="0.75"/>
-        
-        <!-- Inner glowing core -->
         <path d="M2,26 Q7,24 11,29 Q8,34 5,39 Z" fill="#ffff88" opacity="0.65"/>
-        
-        <!-- Small embers -->
         <circle cx="6" cy="18" r="1.8" fill="#ffdd55" opacity="0.9"/>
         <circle cx="12" cy="14" r="1.2" fill="#ffaa33" opacity="0.85"/>
         <circle cx="4" cy="31" r="1.4" fill="#ff7733" opacity="0.8"/>
@@ -738,24 +761,16 @@
       <svg width="100%" height="100%" viewBox="0 0 110 46" xmlns="http://www.w3.org/2000/svg">
         <rect width="110" height="46" fill="#dbe6cb" stroke="#9bb18d" stroke-width="1.5"/>
         <rect x="3" y="3" width="104" height="40" fill="none" stroke="#a7bd99" stroke-width="0.5"/>
-        
         <rect x="30" y="16" width="50" height="18" fill="#7d9471" opacity="0.6"/>
         <rect x="50" y="8" width="10" height="8" fill="#6a825e" opacity="0.7"/>
         <line x1="55" y1="4" x2="55" y2="8" stroke="#566d4b" stroke-width="1"/>
-        
         <text x="8" y="18" font-family="'Courier New', monospace" font-weight="bold" font-size="12" fill="#5c7351">100</text>
         <text x="84" y="38" font-family="'Courier New', monospace" font-weight="bold" font-size="14" fill="#45573c">100</text>
-        
-        <!-- Enhanced Realistic Burning Effect -->
         <path d="M-4,12 Q8,8 18,22 Q12,35 4,46 L-4,46 Z" fill="#ff3300" opacity="0.92"/>
         <path d="M-3,15 Q14,11 21,26 Q15,37 6,46 L-3,46 Z" fill="#ff8800" opacity="0.88"/>
         <path d="M-2,19 Q11,16 19,29 Q13,39 7,46 L-2,46 Z" fill="#ffbb00" opacity="0.85"/>
         <path d="M-1,24 Q9,22 16,32 Q11,41 8,46 L-1,46 Z" fill="#ffeeaa" opacity="0.75"/>
-        
-        <!-- Inner glowing core -->
         <path d="M2,26 Q7,24 11,29 Q8,34 5,39 Z" fill="#ffff88" opacity="0.65"/>
-        
-        <!-- Small embers -->
         <circle cx="6" cy="18" r="1.8" fill="#ffdd55" opacity="0.9"/>
         <circle cx="12" cy="14" r="1.2" fill="#ffaa33" opacity="0.85"/>
         <circle cx="4" cy="31" r="1.4" fill="#ff7733" opacity="0.8"/>
@@ -957,6 +972,43 @@
     
     requestAnimationFrame(updateMoneyEngine);
     requestAnimationFrame(updateNotesEngine);
+
+    /* ── NEW: Glock Shooting System ── */
+    function shootBullet(fromLeft) {
+      const gun = fromLeft ? document.getElementById('glock-left') : document.getElementById('glock-right');
+      const rect = gun.getBoundingClientRect();
+      
+      const bullet = document.createElement('div');
+      bullet.className = 'bullet';
+      
+      const startX = fromLeft ? rect.right - 8 : rect.left + 8;
+      const startY = rect.top + 18;
+      
+      bullet.style.left = startX + 'px';
+      bullet.style.top = startY + 'px';
+      document.body.appendChild(bullet);
+
+      let posY = startY;
+      const speed = 18;
+
+      function animateBullet() {
+        posY -= speed;
+        bullet.style.top = posY + 'px';
+
+        if (posY < -30) {
+          bullet.remove();
+        } else {
+          requestAnimationFrame(animateBullet);
+        }
+      }
+      requestAnimationFrame(animateBullet);
+    }
+
+    // Shoot every 4 seconds
+    setInterval(() => {
+      shootBullet(true);  // Left Glock
+      shootBullet(false); // Right Glock
+    }, 4000);
 
     /* ── Initialization ── */
     loadSong(idx, false);
