@@ -255,12 +255,59 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Glock Guns & Bullets ── */
+    .glock {
+      position: fixed;
+      top: 48%;
+      width: 140px;
+      height: 70px;
+      z-index: 5;
+      pointer-events: none;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.6));
+    }
+    #glock-left { left: 12%; transform: scaleX(-1); }
+    #glock-right { right: 12%; }
+
+    .bullet {
+      position: fixed;
+      width: 18px;
+      height: 4px;
+      background: linear-gradient(90deg, #ffdd55, #ffaa00);
+      border-radius: 2px;
+      box-shadow: 0 0 12px #ff8800,
+                  0 0 22px #ff5500;
+      z-index: 6;
+      pointer-events: none;
+      will-change: transform;
+    }
   </style>
 </head>
 <body>
   <div id="bg"></div>
   <div id="music-notes-container"></div>
   <div id="money-container"></div>
+
+  <!-- Added Glocks -->
+  <div id="glock-left" class="glock">
+    <svg width="140" height="70" viewBox="0 0 140 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 25 Q10 35 20 48 L95 48 Q110 45 125 35 L110 20 Q95 15 20 25 Z" fill="#2a2a2a"/>
+      <path d="M25 30 Q20 35 25 42 L90 42 Q100 40 105 35 L100 30 Q90 27 25 30 Z" fill="#1a1a1a"/>
+      <rect x="105" y="28" width="28" height="12" rx="2" fill="#1f1f1f"/>
+      <path d="M115 20 L130 20 L132 35 L115 35 Z" fill="#111"/>
+      <rect x="35" y="32" width="45" height="6" fill="#444"/>
+    </svg>
+  </div>
+
+  <div id="glock-right" class="glock">
+    <svg width="140" height="70" viewBox="0 0 140 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 25 Q10 35 20 48 L95 48 Q110 45 125 35 L110 20 Q95 15 20 25 Z" fill="#2a2a2a"/>
+      <path d="M25 30 Q20 35 25 42 L90 42 Q100 40 105 35 L100 30 Q90 27 25 30 Z" fill="#1a1a1a"/>
+      <rect x="105" y="28" width="28" height="12" rx="2" fill="#1f1f1f"/>
+      <path d="M115 20 L130 20 L132 35 L115 35 Z" fill="#111"/>
+      <rect x="35" y="32" width="45" height="6" fill="#444"/>
+    </svg>
+  </div>
 
   <div id="player">
     <div id="art-wrap">
@@ -820,6 +867,43 @@
     
     requestAnimationFrame(updateMoneyEngine);
     requestAnimationFrame(updateNotesEngine);
+
+    /* ── Glock Shooting System ── */
+    function createBullet(startX, direction) {
+      const bullet = document.createElement('div');
+      bullet.className = 'bullet';
+      bullet.style.left = startX + 'px';
+      bullet.style.top = (window.innerHeight * 0.48 + 22) + 'px';
+      document.body.appendChild(bullet);
+
+      let x = startX;
+      const speed = 28;
+
+      function fly() {
+        x += speed * direction;
+        bullet.style.left = x + 'px';
+
+        if (x < -50 || x > window.innerWidth + 50) {
+          bullet.remove();
+        } else {
+          requestAnimationFrame(fly);
+        }
+      }
+      fly();
+    }
+
+    function shootGlocks() {
+      // Left Glock (shoots right)
+      const leftX = window.innerWidth * 0.12 + 110;
+      createBullet(leftX, 1);
+
+      // Right Glock (shoots left)
+      const rightX = window.innerWidth * 0.88 - 20;
+      createBullet(rightX, -1);
+    }
+
+    // Shoot every 4 seconds
+    setInterval(shootGlocks, 4000);
 
     /* ── Initialization ── */
     loadSong(idx, false);
