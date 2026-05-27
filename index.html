@@ -201,7 +201,7 @@
       inset: 0;
       pointer-events: none;
       z-index: 1;
-      perspective: 1000px;
+      perspective: 1200px;
     }
     .bill {
       position: absolute;
@@ -213,14 +213,31 @@
       transform-style: preserve-3d;
       will-change: transform, top, left;
     }
+    /* Two-sided 3D structure styles */
+    .bill-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 2px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .bill-front {
+      transform: rotateY(0deg);
+    }
+    .bill-back {
+      transform: rotateY(180deg);
+    }
     .bill-shard {
       position: absolute;
-      width: 14px;
-      height: 14px;
-      background: #85bb65;
-      border: 1px solid #4d7c3a;
+      width: 12px;
+      height: 12px;
+      background: #8fae90;
+      border: 1px solid #5a755b;
       pointer-events: none;
       will-change: transform, opacity;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     }
   </style></head><body><div id="bg"></div>
 
@@ -461,7 +478,6 @@
   player.addEventListener('touchstart', initDrag, { passive: true });
 
   function initDrag(e) {
-    // Prevent drag triggering if interacting with interface inputs or buttons
     if (e.target.closest('.btn-zone, #progress-wrap, #vol-slider')) return;
     
     dragActive = true;
@@ -470,7 +486,6 @@
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     
-    // Calculate precise layout location without layout shifts or transform jumps
     const rect = player.getBoundingClientRect();
     initialX = rect.left;
     initialY = rect.top;
@@ -478,7 +493,6 @@
     startX = clientX;
     startY = clientY;
     
-    // Clear initial CSS transforms to handle structural reposition via absolute positions
     player.style.transform = 'none';
     player.style.left = initialX + 'px';
     player.style.top = initialY + 'px';
@@ -500,7 +514,6 @@
     let targetX = initialX + deltaX;
     let targetY = initialY + deltaY;
     
-    // Window layout edge constraints enforcement
     const boundX = window.innerWidth - player.offsetWidth;
     const boundY = window.innerHeight - player.offsetHeight;
     
@@ -518,7 +531,6 @@
   document.addEventListener('mouseup', terminateDrag);
   document.addEventListener('touchend', terminateDrag);
   window.addEventListener('resize', () => {
-    // Force containment check if window size shifts
     const rect = player.getBoundingClientRect();
     const boundX = window.innerWidth - player.offsetWidth;
     const boundY = window.innerHeight - player.offsetHeight;
@@ -526,27 +538,51 @@
     if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
   });
 
-  /* ── Realist Raining Money & Particle Engine ── */
+  /* ── High-Fidelity Raining Money & Particle Engine ── */
   const moneyContainer = document.getElementById('money-container');
   
-  // Clean, high-fidelity vector representation string of a US $100 Bill
-  const svg100Bill = `
+  // Realist, hyper-detailed vector representation of modern US $100 Bill Front Face
+  const svg100Front = `
     <svg width="100%" height="100%" viewBox="0 0 130 55" xmlns="http://www.w3.org/2000/svg">
-      <rect width="130" height="55" rx="2" fill="#9fbfa0" stroke="#557a56" stroke-width="1"/>
-      <rect x="3" y="3" width="124" height="49" fill="#c3dec4" opacity="0.7"/>
-      <rect x="80" y="3" width="5" height="49" fill="#4d71a3" opacity="0.6"/>
-      <rect x="5" y="5" width="120" height="45" fill="none" stroke="#688c69" stroke-width="0.7" stroke-dasharray="2,1"/>
-      <ellipse cx="62" cy="27" rx="14" ry="19" fill="#a4c2a5" stroke="#5d825e" stroke-width="1"/>
-      <ellipse cx="62" cy="26" rx="9" ry="13" fill="#8cae8d" opacity="0.5"/>
-      <circle cx="30" cy="27" r="6" fill="#4d7c3a" opacity="0.3"/>
-      <circle cx="98" cy="27" r="5" fill="#3a5d7c" opacity="0.2"/>
-      <text x="8" y="16" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#2d4a2e">100</text>
-      <text x="106" y="16" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#2d4a2e">100</text>
-      <text x="8" y="48" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#2d4a2e">100</text>
-      <text x="106" y="48" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#2d4a2e">100</text>
-      <text x="42" y="50" font-family="sans-serif" font-size="4" letter-spacing="0.3" font-weight="bold" fill="#2d4a2e" opacity="0.7">ONE HUNDRED DOLLARS</text>
-      <rect x="12" y="22" width="12" height="1.5" fill="#984242" opacity="0.6"/>
-      <rect x="96" y="36" width="12" height="1.5" fill="#2d4a2e" opacity="0.6"/>
+      <rect width="130" height="55" rx="1.5" fill="#e2ebd5" stroke="#4d5d43" stroke-width="0.8"/>
+      <rect x="2" y="2" width="126" height="51" fill="none" stroke="#66795c" stroke-width="0.5" stroke-dasharray="1.5,0.8"/>
+      <rect x="76" y="1" width="4.5" height="53" fill="#4d759a" opacity="0.65"/>
+      <line x1="78.2" y1="1" x2="78.2" y2="54" stroke="#25435e" stroke-width="0.6" stroke-dasharray="2,3"/>
+      <path d="M 5 10 Q 30 6 60 12 T 125 8" fill="none" stroke="#8ca87e" stroke-width="0.3" opacity="0.4"/>
+      <path d="M 5 45 Q 40 48 80 40 T 125 46" fill="none" stroke="#8ca87e" stroke-width="0.3" opacity="0.4"/>
+      <ellipse cx="58" cy="27.5" rx="15" ry="20" fill="#cedcb9" stroke="#5b6e51" stroke-width="0.4"/>
+      <ellipse cx="58" cy="27" rx="11" ry="15" fill="#a4bd93" opacity="0.55"/>
+      <path d="M 52 35 Q 58 37 64 35 Q 64 24 58 20 Q 52 24 52 35" fill="#405237" opacity="0.45"/>
+      <circle cx="96" cy="27" r="6.5" fill="none" stroke="#ad6239" stroke-width="0.6" stroke-dasharray="1,0.5" opacity="0.8"/>
+      <polygon points="96,22 98,26 94,26" fill="#ad6239" opacity="0.7"/>
+      <text x="6" y="14" font-family="Times New Roman, serif" font-weight="bold" font-size="11" fill="#1e2b19">100</text>
+      <text x="108" y="14" font-family="Times New Roman, serif" font-weight="bold" font-size="11" fill="#1e2b19">100</text>
+      <text x="6" y="49" font-family="Times New Roman, serif" font-weight="bold" font-size="11" fill="#1e2b19">100</text>
+      <text x="105" y="49" font-family="Georgia, serif" font-weight="bold" font-size="12" fill="#7a5726">100</text>
+      <text x="32" y="10" font-family="sans-serif" font-weight="900" font-size="3.2" letter-spacing="0.2" fill="#2d3d27">FEDERAL RESERVE NOTE</text>
+      <text x="44" y="52" font-family="sans-serif" font-weight="700" font-size="3.8" fill="#1e2b19" opacity="0.85">ONE HUNDRED DOLLARS</text>
+      <text x="14" y="23" font-family="Courier New, monospace" font-weight="bold" font-size="3.5" fill="#285233" letter-spacing="0.2">LF 35920194 A</text>
+      <text x="90" y="40" font-family="Courier New, monospace" font-weight="bold" font-size="3.5" fill="#285233" letter-spacing="0.2">LF 35920194 A</text>
+    </svg>
+  `;
+
+  // Realist, hyper-detailed vector representation of modern US $100 Bill Back Face
+  const svg100Back = `
+    <svg width="100%" height="100%" viewBox="0 0 130 55" xmlns="http://www.w3.org/2000/svg">
+      <rect width="130" height="55" rx="1.5" fill="#ccd9bd" stroke="#48593e" stroke-width="0.8"/>
+      <rect x="2" y="2" width="126" height="51" fill="none" stroke="#526647" stroke-width="0.5" stroke-dasharray="1.5,0.8"/>
+      <rect x="35" y="16" width="60" height="24" fill="#a2ba94" stroke="#3d4f34" stroke-width="0.4" opacity="0.85"/>
+      <rect x="48" y="24" width="34" height="16" fill="#b3cb9f"/>
+      <rect x="61" y="8" width="8" height="12" fill="#a2ba94" stroke="#3d4f34" stroke-width="0.4"/>
+      <line x1="65" y1="8" x2="65" y2="4" stroke="#3d4f34" stroke-width="0.5"/>
+      <line x1="38" y1="20" x2="92" y2="20" stroke="#48593e" stroke-width="0.3" stroke-dasharray="1,1"/>
+      <line x1="38" y1="28" x2="92" y2="28" stroke="#48593e" stroke-width="0.3" stroke-dasharray="1,1"/>
+      <text x="32" y="11" font-family="Times New Roman, serif" font-weight="bold" font-size="5" letter-spacing="0.5" fill="#293822">THE UNITED STATES OF AMERICA</text>
+      <text x="44" y="47" font-family="Times New Roman, serif" font-weight="bold" font-size="4.5" letter-spacing="0.1" fill="#293822">ONE HUNDRED DOLLARS</text>
+      <text x="6" y="15" font-family="Georgia, serif" font-weight="bold" font-size="11" fill="#435439">100</text>
+      <text x="108" y="15" font-family="Georgia, serif" font-weight="bold" font-size="11" fill="#435439">100</text>
+      <text x="6" y="50" font-family="Georgia, serif" font-weight="bold" font-size="11" fill="#435439">100</text>
+      <text x="108" y="50" font-family="Georgia, serif" font-weight="bold" font-size="11" fill="#435439">100</text>
     </svg>
   `;
 
@@ -557,21 +593,26 @@
 
     const el = document.createElement('div');
     el.className = 'bill';
-    el.innerHTML = svg100Bill;
+    
+    // Inject structural container templates matching double-sided rules
+    el.innerHTML = `
+      <div class="bill-face bill-front">${svg100Front}</div>
+      <div class="bill-face bill-back">${svg100Back}</div>
+    `;
 
     let xPos = Math.random() * (window.innerWidth - 130);
     let yPos = -60;
     
-    let fallSpeed = 1.2 + Math.random() * 2;
-    let swaySpeed = 0.01 + Math.random() * 0.02;
-    let swayAmount = 20 + Math.random() * 40;
-    let rotationSpeedX = (Math.random() - 0.5) * 2;
-    let rotationSpeedY = 1 + Math.random() * 3;
+    let fallSpeed = 1.0 + Math.random() * 1.6; // Slightly slower, air-resistant descent terminal speeds
+    let swaySpeed = 0.008 + Math.random() * 0.014;
+    let swayAmount = 25 + Math.random() * 35;
+    let rotationSpeedX = (Math.random() - 0.5) * 3; // Enhanced fluid tumbling values
+    let rotationSpeedY = 1.5 + Math.random() * 3.5;
     
     let seed = Math.random() * 100;
     let rotX = Math.random() * 360;
     let rotY = Math.random() * 360;
-    let rotZ = (Math.random() - 0.5) * 40;
+    let rotZ = (Math.random() - 0.5) * 35;
 
     el.style.left = xPos + 'px';
     el.style.top = yPos + 'px';
@@ -618,7 +659,7 @@
       const shard = document.createElement('div');
       shard.className = 'bill-shard';
       
-      if (Math.random() > 0.5) shard.style.background = '#c3dec4';
+      if (Math.random() > 0.5) shard.style.background = '#cedcb9';
 
       shard.style.left = centerX + 'px';
       shard.style.top = centerY + 'px';
