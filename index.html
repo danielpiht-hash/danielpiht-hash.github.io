@@ -195,13 +195,13 @@
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ── Raining Money Styles ── */
+    /* ── Optimized Raining Money Styles ── */
     #money-container {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 1;
-      perspective: 1200px;
+      perspective: 1000px;
     }
     .bill {
       position: absolute;
@@ -211,7 +211,7 @@
       pointer-events: auto;
       user-select: none;
       transform-style: preserve-3d;
-      will-change: transform, top, left;
+      will-change: transform;
     }
     .bill-face {
       position: absolute;
@@ -220,7 +220,7 @@
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       border-radius: 2px;
-      box-shadow: 0 8px 25px rgba(255, 68, 0, 0.35), 0 2px 5px rgba(0,0,0,0.4);
+      box-shadow: 0 6px 15px rgba(255, 68, 0, 0.25);
     }
     .bill-front {
       transform: rotateY(0deg);
@@ -230,15 +230,13 @@
     }
     .bill-shard {
       position: absolute;
-      width: 10px;
-      height: 10px;
-      background: #ff5500;
-      border: 1px solid #3a0e00;
+      width: 9px;
+      height: 9px;
+      background: #ff6600;
       pointer-events: none;
       will-change: transform, opacity;
-      box-shadow: 0 0 8px #ffaa00;
     }
-    /* Volumetric combustion engine effects */
+    /* GPU Accelerated Fire Layer Engine */
     .fire-particle {
       position: absolute;
       border-radius: 50%;
@@ -246,19 +244,6 @@
       mix-blend-mode: screen;
       will-change: transform, opacity;
       z-index: 2;
-    }
-    /* Dynamic heat mirage wave effect behind the bills */
-    .heat-mirage {
-      position: absolute;
-      width: 160px;
-      height: 90px;
-      pointer-events: none;
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
-      border-radius: 50%;
-      z-index: 1;
-      will-change: transform, opacity;
-      opacity: 0.6;
     }
   </style></head><body><div id="bg"></div>
 
@@ -373,7 +358,7 @@
       coverImg.src = s.cover;
       coverImg.onload = () => coverImg.classList.remove('fade-out');
       coverImg.onerror = () => {
-        // Fallback transparent/generated placeholder asset vector if resource fails
+        // Fallback placeholder asset vector if resource fails
         coverImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='%231e1b4b'/></svg>";
         coverImg.classList.remove('fade-out');
       };
@@ -559,30 +544,24 @@
     if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
   });
 
-  /* ── High-Fidelity Raining Money & Volumetric Fire Engine ── */
+  /* ── Optimized Crash-Resistant Money & Fire Pipeline ── */
   const moneyContainer = document.getElementById('money-container');
   
-  // High-Fidelity Vector Front with ash layers and integrated feGaussianBlur engine
+  // Realist, lightweight vector representation of US $100 Bill Front Face
   const svg100Front = `
     <svg width="100%" height="100%" viewBox="0 0 130 55" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <filter id="glow-fx" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="1.8" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-        <linearGradient id="char-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#111111" stop-opacity="0.95"/>
-          <stop offset="15%" stop-color="#2a1a10" stop-opacity="0.8"/>
-          <stop offset="40%" stop-color="#e2ebd5" stop-opacity="0.0"/>
+        <linearGradient id="burn-f" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#111" stop-opacity="0.95"/>
+          <stop offset="12%" stop-color="#ff4500" stop-opacity="0.8"/>
+          <stop offset="25%" stop-color="#e2ebd5" stop-opacity="0"/>
         </linearGradient>
       </defs>
       <rect width="130" height="55" rx="1.5" fill="#e2ebd5" stroke="#4d5d43" stroke-width="0.8"/>
       <rect x="2" y="2" width="126" height="51" fill="none" stroke="#66795c" stroke-width="0.5" stroke-dasharray="1.5,0.8"/>
       <rect x="76" y="1" width="4.5" height="53" fill="#4d759a" opacity="0.65"/>
-      <line x1="78.2" y1="1" x2="78.2" y2="54" stroke="#25435e" stroke-width="0.6" stroke-dasharray="2,3"/>
       <ellipse cx="58" cy="27.5" rx="15" ry="20" fill="#cedcb9" stroke="#5b6e51" stroke-width="0.4"/>
       <ellipse cx="58" cy="27" rx="11" ry="15" fill="#a4bd93" opacity="0.55"/>
-      <path d="M 52 35 Q 58 37 64 35 Q 64 24 58 20 Q 52 24 52 35" fill="#405237" opacity="0.45"/>
       <circle cx="96" cy="27" r="6.5" fill="none" stroke="#ad6239" stroke-width="0.6" stroke-dasharray="1,0.5" opacity="0.8"/>
       <text x="6" y="14" font-family="Times New Roman, serif" font-weight="bold" font-size="11" fill="#1e2b19">100</text>
       <text x="108" y="14" font-family="Times New Roman, serif" font-weight="bold" font-size="11" fill="#1e2b19">100</text>
@@ -590,145 +569,99 @@
       <text x="105" y="49" font-family="Georgia, serif" font-weight="bold" font-size="12" fill="#7a5726">100</text>
       <text x="32" y="10" font-family="sans-serif" font-weight="900" font-size="3.2" letter-spacing="0.2" fill="#2d3d27">FEDERAL RESERVE NOTE</text>
       <text x="44" y="52" font-family="sans-serif" font-weight="700" font-size="3.8" fill="#1e2b19" opacity="0.85">ONE HUNDRED DOLLARS</text>
-      <text x="14" y="23" font-family="Courier New, monospace" font-weight="bold" font-size="3.5" fill="#285233" letter-spacing="0.2">LF 35920194 A</text>
-      
-      <path d="M 0 0 Q 25 15 12 28 T 35 55 L 0 55 Z" fill="url(#char-grad)"/>
-      <path d="M 0 0 Q 25 15 12 28 T 35 55" fill="none" stroke="#ff4500" stroke-width="1.2" filter="url(#glow-fx)"/>
+      <path d="M 0 0 Q 22 15 10 28 T 30 55 L 0 55 Z" fill="url(#burn-f)"/>
     </svg>
   `;
 
+  // Realist, lightweight vector representation of US $100 Bill Back Face
   const svg100Back = `
     <svg width="100%" height="100%" viewBox="0 0 130 55" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <filter id="glow-fx2" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="1.8" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-        <linearGradient id="char-grad2" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#111111" stop-opacity="0.95"/>
-          <stop offset="15%" stop-color="#2a1a10" stop-opacity="0.8"/>
-          <stop offset="40%" stop-color="#ccd9bd" stop-opacity="0.0"/>
+        <linearGradient id="burn-b" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#111" stop-opacity="0.95"/>
+          <stop offset="12%" stop-color="#ff4500" stop-opacity="0.8"/>
+          <stop offset="25%" stop-color="#ccd9bd" stop-opacity="0"/>
         </linearGradient>
       </defs>
       <rect width="130" height="55" rx="1.5" fill="#ccd9bd" stroke="#48593e" stroke-width="0.8"/>
       <rect x="2" y="2" width="126" height="51" fill="none" stroke="#526647" stroke-width="0.5" stroke-dasharray="1.5,0.8"/>
       <rect x="35" y="16" width="60" height="24" fill="#a2ba94" stroke="#3d4f34" stroke-width="0.4" opacity="0.85"/>
-      <rect x="61" y="8" width="8" height="12" fill="#a2ba94" stroke="#3d4f34" stroke-width="0.4"/>
       <text x="32" y="11" font-family="Times New Roman, serif" font-weight="bold" font-size="5" letter-spacing="0.5" fill="#293822">THE UNITED STATES OF AMERICA</text>
       <text x="44" y="47" font-family="Times New Roman, serif" font-weight="bold" font-size="4.5" letter-spacing="0.1" fill="#293822">ONE HUNDRED DOLLARS</text>
       <text x="6" y="15" font-family="Georgia, serif" font-weight="bold" font-size="11" fill="#435439">100</text>
       <text x="108" y="15" font-family="Georgia, serif" font-weight="bold" font-size="11" fill="#435439">100</text>
-      
-      <path d="M 0 0 Q 25 15 12 28 T 35 55 L 0 55 Z" fill="url(#char-grad2)"/>
-      <path d="M 0 0 Q 25 15 12 28 T 35 55" fill="none" stroke="#ff4500" stroke-width="1.2" filter="url(#glow-fx2)"/>
+      <path d="M 0 0 Q 22 15 10 28 T 30 55 L 0 55 Z" fill="url(#burn-b)"/>
     </svg>
   `;
 
   let activeBills = [];
 
-  // Procedural multi-tiered high-realism plasma fire framework
-  function spawnHighRealismFlame(billX, billY, rotZ) {
-    // Generate individual thermodynamic combustion stages
-    const layers = 2; 
-    for(let i=0; i<layers; i++) {
-      const p = document.createElement('div');
-      p.className = 'fire-particle';
-      
-      const rand = Math.random();
-      let size = 12 + Math.random() * 22;
-      let bg = '';
-      let blur = 'blur(1px)';
-      
-      // Realist color space ratio mixing core temperature color fields
-      if (rand > 0.75) {
-        bg = 'radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,230,110,0.9) 40%, rgba(255,100,0,0) 70%)'; // White hot thermal core
-      } else if (rand > 0.4) {
-        bg = 'radial-gradient(circle, rgba(255,140,0,0.9) 0%, rgba(255,60,0,0.7) 50%, rgba(200,0,0,0) 80%)';   // Kinetic body flame
-      } else if (rand > 0.15) {
-        bg = 'radial-gradient(circle, rgba(130,50,0,0.6) 0%, rgba(90,20,0,0.4) 40%, rgba(0,0,0,0) 70%)';     // Incandescent amber plume
-        blur = 'blur(3px)';
-      } else {
-        bg = 'radial-gradient(circle, rgba(50,50,50,0.3) 0%, rgba(20,20,20,0.1) 50%, rgba(0,0,0,0) 80%)';     // Thermal cooling soot/smoke
-        size = 20 + Math.random() * 25;
-        blur = 'blur(5px)';
-      }
-
-      p.style.width = size + 'px';
-      p.style.height = size + 'px';
-      p.style.background = bg;
-      p.style.filter = blur;
-
-      // Project fire coordinates dynamically along the custom charred left axis of the bill
-      const angleRad = rotZ * Math.PI / 180;
-      const localOffsetX = Math.random() * 30 - 15;
-      const localOffsetY = Math.random() * 45 - 22;
-      
-      const rotatedX = localOffsetX * Math.cos(angleRad) - localOffsetY * Math.sin(angleRad);
-      const rotatedY = localOffsetX * Math.sin(angleRad) + localOffsetY * Math.cos(angleRad);
-
-      const startX = billX + 25 + rotatedX;
-      const startY = billY + 27 + rotatedY;
-
-      p.style.left = startX + 'px';
-      p.style.top = startY + 'px';
-      moneyContainer.appendChild(p);
-
-      let curY = startY;
-      let curX = startX;
-      let op = 1.0;
-      let scale = 1.0;
-      
-      let velY = -1.2 - Math.random() * 2.2; // Upward thermal drafts
-      let velX = (Math.random() - 0.5) * 1.2 - (Math.sin(angleRad) * 0.8);
-
-      function animateFlameLayer() {
-        curY += velY;
-        curX += velX;
-        op -= 0.038;
-        scale += 0.025; 
-
-        p.style.top = curY + 'px';
-        p.style.left = curX + 'px';
-        p.style.transform = `scale(${scale})`;
-        p.style.opacity = op;
-
-        if (op <= 0) {
-          p.remove();
-        } else {
-          requestAnimationFrame(animateFlameLayer);
-        }
-      }
-      requestAnimationFrame(animateFlameLayer);
+  // Lightweight pre-blended multi-layered color field particle generator
+  function spawnFlameParticle(billX, billY, rotZ) {
+    const p = document.createElement('div');
+    p.className = 'fire-particle';
+    
+    const rand = Math.random();
+    let size = 12 + Math.random() * 14;
+    let bg = '';
+    
+    // Performance optimized flat CSS radial distributions instead of filter: blur()
+    if (rand > 0.65) {
+      bg = 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,200,0,0.6) 50%, rgba(255,68,0,0) 70%)';
+    } else if (rand > 0.25) {
+      bg = 'radial-gradient(circle, rgba(255,100,0,0.7) 0%, rgba(180,30,0,0.4) 50%, rgba(0,0,0,0) 80%)';
+    } else {
+      bg = 'radial-gradient(circle, rgba(60,60,60,0.3) 0%, rgba(0,0,0,0) 70%)';
+      size = 18 + Math.random() * 10;
     }
-  }
 
-  // Generates physical micro refractive mirage lens blocks
-  function spawnHeatMirage(x, y) {
-    if (Math.random() > 0.25) return;
-    const mirage = document.createElement('div');
-    mirage.className = 'heat-mirage';
-    mirage.style.left = (x - 15) + 'px';
-    mirage.style.top = (y - 15) + 'px';
-    moneyContainer.appendChild(mirage);
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.background = bg;
 
-    let op = 0.6;
-    let curY = y - 15;
-    function animateMirage() {
-      curY -= 1.5;
-      op -= 0.025;
-      mirage.style.top = curY + 'px';
-      mirage.style.opacity = op;
+    // Fast trigonometric local offset calculation math
+    const angleRad = rotZ * Math.PI / 180;
+    const localX = Math.random() * 20 - 10;
+    const localY = Math.random() * 40 - 20;
+    const rotX = localX * Math.cos(angleRad) - localY * Math.sin(angleRad);
+    const rotY = localX * Math.sin(angleRad) + localY * Math.cos(angleRad);
+
+    const startX = billX + 20 + rotX;
+    const startY = billY + 27 + rotY;
+
+    // Use GPU hardware acceleration layers for the particles
+    p.style.transform = `translate3d(${startX}px, ${startY}px, 0)`;
+    moneyContainer.appendChild(p);
+
+    let curY = startY;
+    let curX = startX;
+    let op = 1.0;
+    let scale = 1.0;
+    
+    let velY = -1.5 - Math.random() * 1.5;
+    let velX = (Math.random() - 0.5) * 1.0;
+
+    function animateFlame() {
+      curY += velY;
+      curX += velX;
+      op -= 0.045; 
+      scale += 0.02;
+
+      p.style.transform = `translate3d(${curX}px, ${curY}px, 0) scale(${scale})`;
+      p.style.opacity = op;
+
       if (op <= 0) {
-        mirage.remove();
+        p.remove();
       } else {
-        requestAnimationFrame(animateMirage);
+        requestAnimationFrame(animateFlame);
       }
     }
-    requestAnimationFrame(animateMirage);
+    requestAnimationFrame(animateFlame);
   }
 
   function spawnBill() {
-    if (activeBills.length > 25) return;
+    // Strictly capped max element depth structure to eliminate crash vectors
+    if (activeBills.length > 15) return;
 
     const el = document.createElement('div');
     el.className = 'bill';
@@ -741,19 +674,19 @@
     let xPos = Math.random() * (window.innerWidth - 130);
     let yPos = -60;
     
-    let fallSpeed = 1.0 + Math.random() * 1.6; 
-    let swaySpeed = 0.008 + Math.random() * 0.014;
-    let swayAmount = 25 + Math.random() * 35;
-    let rotationSpeedX = (Math.random() - 0.5) * 3; 
-    let rotationSpeedY = 1.5 + Math.random() * 3.5;
+    let fallSpeed = 1.2 + Math.random() * 1.4; 
+    let swaySpeed = 0.009 + Math.random() * 0.012;
+    let swayAmount = 25 + Math.random() * 30;
+    let rotationSpeedX = (Math.random() - 0.5) * 2.5; 
+    let rotationSpeedY = 1.5 + Math.random() * 3.0;
     
     let seed = Math.random() * 100;
     let rotX = Math.random() * 360;
     let rotY = Math.random() * 360;
-    let rotZ = (Math.random() - 0.5) * 35;
+    let rotZ = (Math.random() - 0.5) * 30;
 
-    el.style.left = xPos + 'px';
-    el.style.top = yPos + 'px';
+    // GPU layer activation configuration
+    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
     moneyContainer.appendChild(el);
 
     const billObj = {
@@ -785,46 +718,39 @@
 
   function explodeBill(bill) {
     activeBills = activeBills.filter(b => b !== bill);
-    
     const rect = bill.element.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-
     bill.element.remove();
 
-    const shardCount = 18;
+    // Throttled light shard bursts 
+    const shardCount = 8;
     for (let i = 0; i < shardCount; i++) {
       const shard = document.createElement('div');
       shard.className = 'bill-shard';
       
-      // Explodes into white hot / high energy secondary burning cinders
-      if (Math.random() > 0.4) shard.style.background = '#ffdd44';
-      if (Math.random() > 0.7) shard.style.background = '#ffffff';
+      if (Math.random() > 0.5) shard.style.background = '#ffcc00';
 
-      shard.style.left = centerX + 'px';
-      shard.style.top = centerY + 'px';
+      shard.style.transform = `translate3d(${centerX}px, ${centerY}px, 0)`;
       moneyContainer.appendChild(shard);
 
       const angle = Math.random() * Math.PI * 2;
-      const velocity = 3 + Math.random() * 8;
+      const velocity = 3 + Math.random() * 5;
       let sX = Math.cos(angle) * velocity;
       let sY = Math.sin(angle) * velocity;
       let sRot = Math.random() * 360;
-      let sRotSpeed = (Math.random() - 0.5) * 25;
       let opacity = 1;
       let curX = centerX;
       let curY = centerY;
 
       function updateShard() {
-        sY += 0.2; 
+        sY += 0.25; 
         curX += sX;
         curY += sY;
-        opacity -= 0.02;
-        sRot += sRotSpeed;
+        opacity -= 0.03;
+        sRot += 5;
 
-        shard.style.left = curX + 'px';
-        shard.style.top = curY + 'px';
-        shard.style.transform = `rotate(${sRot}deg)`;
+        shard.style.transform = `translate3d(${curX}px, ${curY}px, 0) rotate(${sRot}deg)`;
         shard.style.opacity = opacity;
 
         if (opacity <= 0) {
@@ -847,13 +773,13 @@
       b.rotX += b.rotationSpeedX;
       b.rotY += b.rotationSpeedY;
 
-      b.element.style.top = b.y + 'px';
-      b.element.style.left = currentX + 'px';
-      b.element.style.transform = `rotateX(${b.rotX}deg) rotateY(${b.rotY}deg) rotateZ(${b.rotZ}deg)`;
+      // Combined optimized 3D matrix operations inside translate3d hardware pipeline
+      b.element.style.transform = `translate3d(${currentX}px, ${b.y}px, 0) rotateX(${b.rotX}deg) rotateY(${b.rotY}deg) rotateZ(${b.rotZ}deg)`;
 
-      // Continuous thermodynamic ignition cycle calculation loop
-      spawnHighRealismFlame(currentX, b.y, b.rotZ);
-      spawnHeatMirage(currentX, b.y);
+      // Throttled particle ticks to completely protect low-end mobile/desktop browsers
+      if (Math.random() > 0.4) {
+        spawnFlameParticle(currentX, b.y, b.rotZ);
+      }
 
       if (b.y > window.innerHeight + 60) {
         b.element.remove();
@@ -863,7 +789,7 @@
     requestAnimationFrame(updateMoneyEngine);
   }
 
-  setInterval(spawnBill, 700);
+  setInterval(spawnBill, 900); // Shifted generation interval slightly to minimize overlapping overhead
   requestAnimationFrame(updateMoneyEngine);
 
   /* ── Initialization ── */
