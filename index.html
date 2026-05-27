@@ -75,25 +75,28 @@
             display: block;
         }
 
-        /* Transparent Interactive Button Overlays */
+        /* VISIBLE Interactive Button Overlays */
         .btn-overlay {
             position: absolute;
             bottom: 15px;
             height: 55px;
             cursor: pointer;
-            background: rgba(255, 255, 255, 0); /* Invisible but clickable */
-            border: none;
+            background: rgba(255, 255, 255, 0.25); /* Semi-transparent white background */
+            border: 2px solid #ffffff; /* Crisp white border to make buttons highly visible */
             outline: none;
-            border-radius: 50%;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
         }
 
-        /* Subtle visual feedback on hover/active */
+        /* Interactive states for visual feedback */
         .btn-overlay:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.45);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+            transform: scale(1.03);
         }
         .btn-overlay:active {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0.97);
         }
 
         /* Precise positioning over the SVG paths */
@@ -161,7 +164,7 @@
         const trackData = {
             title: "Maxon Music",
             audio: "maxonmusic.mp3", 
-            cover: "https://picsum.photos/id/1025/200/300" // Default cover art placeholder
+            cover: "album.jpeg" // Kept album.jpeg as requested
         };
 
         const audio = document.getElementById('audio-player');
