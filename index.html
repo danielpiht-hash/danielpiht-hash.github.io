@@ -356,20 +356,23 @@
 
     <div id="vol-wrap">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 5.5h2.5 L8 2.5v11L4.5 10.5H2v-5z" fill="rgba(255,255,255,0.6)"/>
+        <path d="M2 5.5h2.5L8 2.5v11L4.5 10.5H2v-5z" fill="rgba(255,255,255,0.6)"/>
         <path d="M11 5a3.5 3.5 0 0 1 0 6" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.8" />
     </div>
   </div>
 
+  <!-- TV Group -->
   <div id="tv-group">
+    <!-- Added TV -->
     <div id="tv">
       <video id="music-video" loop muted>
         <source src="musicvideo.mp4" type="video/mp4">
       </video>
     </div>
 
+    <!-- Added TV Title -->
     <div id="tv-title">Hate The Morning (Official Music Video) - Maxon Margiela</div>
   </div>
 
@@ -640,9 +643,6 @@
     tvGroup.addEventListener('touchstart', initTvDrag, { passive: true });
 
     function initTvDrag(e) {
-      // FIX: Only permit dragging/interaction if clicking directly on the video element itself
-      if (e.target.id !== 'music-video') return;
-
       tvDragActive = true;
       tvGroup.classList.add('dragging');
       
@@ -718,13 +718,16 @@
         <path d="M88,32 L96,32 L94,27 L90,27 Z" fill="#9c7a46" opacity="0.9"/>
         <circle cx="92" cy="27" r="2" fill="#e3edd5"/>
 
+        <!-- Enhanced Realistic Burning Effect -->
         <path d="M-4,12 Q8,8 18,22 Q12,35 4,46 L-4,46 Z" fill="#ff3300" opacity="0.92"/>
         <path d="M-3,15 Q14,11 21,26 Q15,37 6,46 L-3,46 Z" fill="#ff8800" opacity="0.88"/>
         <path d="M-2,19 Q11,16 19,29 Q13,39 7,46 L-2,46 Z" fill="#ffbb00" opacity="0.85"/>
         <path d="M-1,24 Q9,22 16,32 Q11,41 8,46 L-1,46 Z" fill="#ffeeaa" opacity="0.75"/>
         
+        <!-- Inner glowing core -->
         <path d="M2,26 Q7,24 11,29 Q8,34 5,39 Z" fill="#ffff88" opacity="0.65"/>
         
+        <!-- Small embers -->
         <circle cx="6" cy="18" r="1.8" fill="#ffdd55" opacity="0.9"/>
         <circle cx="12" cy="14" r="1.2" fill="#ffaa33" opacity="0.85"/>
         <circle cx="4" cy="31" r="1.4" fill="#ff7733" opacity="0.8"/>
@@ -743,13 +746,16 @@
         <text x="8" y="18" font-family="'Courier New', monospace" font-weight="bold" font-size="12" fill="#5c7351">100</text>
         <text x="84" y="38" font-family="'Courier New', monospace" font-weight="bold" font-size="14" fill="#45573c">100</text>
         
+        <!-- Enhanced Realistic Burning Effect -->
         <path d="M-4,12 Q8,8 18,22 Q12,35 4,46 L-4,46 Z" fill="#ff3300" opacity="0.92"/>
         <path d="M-3,15 Q14,11 21,26 Q15,37 6,46 L-3,46 Z" fill="#ff8800" opacity="0.88"/>
         <path d="M-2,19 Q11,16 19,29 Q13,39 7,46 L-2,46 Z" fill="#ffbb00" opacity="0.85"/>
         <path d="M-1,24 Q9,22 16,32 Q11,41 8,46 L-1,46 Z" fill="#ffeeaa" opacity="0.75"/>
         
+        <!-- Inner glowing core -->
         <path d="M2,26 Q7,24 11,29 Q8,34 5,39 Z" fill="#ffff88" opacity="0.65"/>
         
+        <!-- Small embers -->
         <circle cx="6" cy="18" r="1.8" fill="#ffdd55" opacity="0.9"/>
         <circle cx="12" cy="14" r="1.2" fill="#ffaa33" opacity="0.85"/>
         <circle cx="4" cy="31" r="1.4" fill="#ff7733" opacity="0.8"/>
