@@ -132,7 +132,7 @@
     }
     .time-row {
       display: flex;
-      justify-between: space-between;
+      justify-content: space-between;
       font-size: 11px;
       color: rgba(255,255,255,0.4);
       margin-top: 2px;
@@ -195,18 +195,18 @@
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    /* ── Optimized Raining Money Styles ── */
+    /* ── Performance Optimized Raining Money Styles ── */
     #money-container {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 1;
-      perspective: 1000px;
+      perspective: 800px;
     }
     .bill {
       position: absolute;
-      width: 130px;
-      height: 55px;
+      width: 120px;
+      height: 50px;
       cursor: pointer;
       pointer-events: auto;
       user-select: none;
@@ -220,7 +220,7 @@
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       border-radius: 2px;
-      box-shadow: 0 6px 15px rgba(255, 68, 0, 0.25);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
     .bill-front {
       transform: rotateY(0deg);
@@ -230,18 +230,17 @@
     }
     .bill-shard {
       position: absolute;
-      width: 9px;
-      height: 9px;
-      background: #ff6600;
+      width: 8px;
+      height: 8px;
+      background: #ff5500;
       pointer-events: none;
       will-change: transform, opacity;
     }
-    /* GPU Accelerated Fire Layer Engine */
+    /* Low-spec CPU friendly Flame Layer */
     .fire-particle {
       position: absolute;
       border-radius: 50%;
       pointer-events: none;
-      mix-blend-mode: screen;
       will-change: transform, opacity;
       z-index: 2;
     }
@@ -352,19 +351,16 @@
     audio.src = s.src;
     audio.volume = parseFloat(volSlider.value);
 
-    // Fade animation wrapper for Album art changes
     coverImg.classList.add('fade-out');
     setTimeout(() => {
       coverImg.src = s.cover;
       coverImg.onload = () => coverImg.classList.remove('fade-out');
       coverImg.onerror = () => {
-        // Fallback placeholder asset vector if resource fails
         coverImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='%231e1b4b'/></svg>";
         coverImg.classList.remove('fade-out');
       };
     }, 200);
 
-    // Clear timelines reset layout variables
     progressFill.style.width = '0%';
     progressThumb.style.left = '0%';
     timeCur.textContent = '0:00';
@@ -388,14 +384,12 @@
     }
   }
 
-  // Dynamic SVG Node updates for switching inner elements
   function updatePlayIcon(isPlaying) {
     const g = document.getElementById('btn-play');
     const oldIcons = g.querySelectorAll('.ctrl-icon');
     oldIcons.forEach(el => el.remove());
 
     if (isPlaying) {
-      // Create SVG Pause Rectangles
       [['132', '6'], ['146', '6']].forEach(([xPos, width]) => {
         const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         r.setAttribute('class', 'ctrl-icon');
@@ -407,7 +401,6 @@
         g.appendChild(r);
       });
     } else {
-      // Create SVG Play Triangle Polygon
       const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
       poly.setAttribute('class', 'ctrl-icon');
       poly.setAttribute('points', '134,18 134,42 154,30');
@@ -544,85 +537,46 @@
     if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
   });
 
-  /* ── Ultra-Lightweight Money & Fire Pipeline ── */
+  /* ── Low-Spec Optimized Money & Fire Engine ── */
   const moneyContainer = document.getElementById('money-container');
   
+  // Highly simplified, stylized vector representation of a green bill
   const svg100Front = `
-    <svg width="100%" height="100%" viewBox="0 0 130 55" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="burn-f" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#111" stop-opacity="0.95"/>
-          <stop offset="12%" stop-color="#ff4500" stop-opacity="0.8"/>
-          <stop offset="25%" stop-color="#e2ebd5" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <rect width="130" height="55" rx="1.5" fill="#e2ebd5" stroke="#4d5d43" stroke-width="0.8"/>
-      <rect x="2" y="2" width="126" height="51" fill="none" stroke="#66795c" stroke-width="0.5" stroke-dasharray="1.5,0.8"/>
-      <rect x="76" y="1" width="4.5" height="53" fill="#4d759a" opacity="0.65"/>
-      <ellipse cx="58" cy="27.5" rx="15" ry="20" fill="#cedcb9" stroke="#5b6e51" stroke-width="0.4"/>
-      <ellipse cx="58" cy="27" rx="11" ry="15" fill="#a4bd93" opacity="0.55"/>
-      <circle cx="96" cy="27" r="6.5" fill="none" stroke="#ad6239" stroke-width="0.6" stroke-dasharray="1,0.5" opacity="0.8"/>
-      <text x="6" y="14" font-family="Times New Roman, serif" font-weight="bold" font-size="11" fill="#1e2b19">100</text>
-      <text x="108" y="14" font-family="Times New Roman, serif" font-weight="bold" font-size="11" fill="#1e2b19">100</text>
-      <text x="6" y="49" font-family="Times New Roman, serif" font-weight="bold" font-size="11" fill="#1e2b19">100</text>
-      <text x="105" y="49" font-family="Georgia, serif" font-weight="bold" font-size="12" fill="#7a5726">100</text>
-      <text x="32" y="10" font-family="sans-serif" font-weight="900" font-size="3.2" letter-spacing="0.2" fill="#2d3d27">FEDERAL RESERVE NOTE</text>
-      <text x="44" y="52" font-family="sans-serif" font-weight="700" font-size="3.8" fill="#1e2b19" opacity="0.85">ONE HUNDRED DOLLARS</text>
-      <path d="M 0 0 Q 22 15 10 28 T 30 55 L 0 55 Z" fill="url(#burn-f)"/>
+    <svg width="100%" height="100%" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
+      <rect width="120" height="50" fill="#85bb65" stroke="#2e5618" stroke-width="1.5"/>
+      <rect x="4" y="4" width="112" height="42" fill="none" stroke="#2e5618" stroke-width="1"/>
+      <circle cx="60" cy="25" r="12" fill="#a3d985" opacity="0.6"/>
+      <text x="54" y="30" font-family="sans-serif" font-weight="bold" font-size="14" fill="#1b330e">$</text>
+      <text x="8" y="15" font-family="sans-serif" font-size="8" fill="#1b330e">100</text>
+      <text x="100" y="42" font-family="sans-serif" font-size="8" fill="#1b330e">100</text>
     </svg>
   `;
 
   const svg100Back = `
-    <svg width="100%" height="100%" viewBox="0 0 130 55" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="burn-b" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#111" stop-opacity="0.95"/>
-          <stop offset="12%" stop-color="#ff4500" stop-opacity="0.8"/>
-          <stop offset="25%" stop-color="#ccd9bd" stop-opacity="0"/>
-        </linearGradient>
-      </defs>
-      <rect width="130" height="55" rx="1.5" fill="#ccd9bd" stroke="#48593e" stroke-width="0.8"/>
-      <rect x="2" y="2" width="126" height="51" fill="none" stroke="#526647" stroke-width="0.5" stroke-dasharray="1.5,0.8"/>
-      <rect x="35" y="16" width="60" height="24" fill="#a2ba94" stroke="#3d4f34" stroke-width="0.4" opacity="0.85"/>
-      <text x="32" y="11" font-family="Times New Roman, serif" font-weight="bold" font-size="5" letter-spacing="0.5" fill="#293822">THE UNITED STATES OF AMERICA</text>
-      <text x="44" y="47" font-family="Times New Roman, serif" font-weight="bold" font-size="4.5" letter-spacing="0.1" fill="#293822">ONE HUNDRED DOLLARS</text>
-      <text x="6" y="15" font-family="Georgia, serif" font-weight="bold" font-size="11" fill="#435439">100</text>
-      <text x="108" y="15" font-family="Georgia, serif" font-weight="bold" font-size="11" fill="#435439">100</text>
-      <path d="M 0 0 Q 22 15 10 28 T 30 55 L 0 55 Z" fill="url(#burn-b)"/>
+    <svg width="100%" height="100%" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg">
+      <rect width="120" height="50" fill="#6da34d" stroke="#1b330e" stroke-width="1.5"/>
+      <rect x="4" y="4" width="112" height="42" fill="none" stroke="#1b330e" stroke-width="1" stroke-dasharray="3,3"/>
+      <circle cx="60" cy="25" r="10" fill="none" stroke="#1b330e" stroke-width="1"/>
+      <text x="14" y="29" font-family="sans-serif" font-weight="bold" font-size="10" fill="#1b330e" letter-spacing="1">100</text>
     </svg>
   `;
 
   let activeBills = [];
 
-  function spawnFlameParticle(billX, billY, rotZ) {
+  // Low-cost solid particle framework (No gradients, no blur filters)
+  function spawnFlameParticle(billX, billY) {
     const p = document.createElement('div');
     p.className = 'fire-particle';
     
-    const rand = Math.random();
-    let size = 11 + Math.random() * 12;
-    let bg = '';
-    
-    if (rand > 0.65) {
-      bg = 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,200,0,0.6) 50%, rgba(255,68,0,0) 70%)';
-    } else if (rand > 0.25) {
-      bg = 'radial-gradient(circle, rgba(255,100,0,0.7) 0%, rgba(180,30,0,0.4) 50%, rgba(0,0,0,0) 80%)';
-    } else {
-      bg = 'radial-gradient(circle, rgba(60,60,60,0.2) 0%, rgba(0,0,0,0) 70%)';
-      size = 16 + Math.random() * 8;
-    }
-
+    const size = 6 + Math.random() * 8;
     p.style.width = size + 'px';
     p.style.height = size + 'px';
-    p.style.background = bg;
+    
+    // Quick random selection of raw basic color blocks
+    p.style.background = Math.random() > 0.4 ? '#ff5500' : '#ffaa00';
 
-    const angleRad = rotZ * Math.PI / 180;
-    const localX = Math.random() * 16 - 8;
-    const localY = Math.random() * 32 - 16;
-    const rotX = localX * Math.cos(angleRad) - localY * Math.sin(angleRad);
-    const rotY = localX * Math.sin(angleRad) + localY * Math.cos(angleRad);
-
-    const startX = billX + 20 + rotX;
-    const startY = billY + 27 + rotY;
+    const startX = billX + 15 + (Math.random() * 20 - 10);
+    const startY = billY + 20 + (Math.random() * 20 - 10);
 
     p.style.transform = `translate3d(${startX}px, ${startY}px, 0)`;
     moneyContainer.appendChild(p);
@@ -630,18 +584,16 @@
     let curY = startY;
     let curX = startX;
     let op = 1.0;
-    let scale = 1.0;
     
-    let velY = -1.4 - Math.random() * 1.2;
-    let velX = (Math.random() - 0.5) * 0.8;
+    let velY = -1.5 - Math.random() * 1.0;
+    let velX = (Math.random() - 0.5) * 0.6;
 
     function animateFlame() {
       curY += velY;
       curX += velX;
-      op -= 0.05; 
-      scale += 0.015;
+      op -= 0.06; 
 
-      p.style.transform = `translate3d(${curX}px, ${curY}px, 0) scale(${scale})`;
+      p.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
       p.style.opacity = op;
 
       if (op <= 0) {
@@ -654,8 +606,8 @@
   }
 
   function spawnBill() {
-    // Aggressively capped concurrent bill limit down to 5 max layout entries
-    if (activeBills.length > 4) return;
+    // Drop maximum active viewport count to a strict low limit of 3
+    if (activeBills.length > 2) return;
 
     const el = document.createElement('div');
     el.className = 'bill';
@@ -665,19 +617,19 @@
       <div class="bill-face bill-back">${svg100Back}</div>
     `;
 
-    let xPos = Math.random() * (window.innerWidth - 130);
+    let xPos = Math.random() * (window.innerWidth - 120);
     let yPos = -60;
     
-    let fallSpeed = 1.1 + Math.random() * 1.2; 
-    let swaySpeed = 0.008 + Math.random() * 0.010;
-    let swayAmount = 20 + Math.random() * 25;
+    let fallSpeed = 1.2 + Math.random() * 0.8; 
+    let swaySpeed = 0.007 + Math.random() * 0.005;
+    let swayAmount = 15 + Math.random() * 15;
     let rotationSpeedX = (Math.random() - 0.5) * 2.0; 
-    let rotationSpeedY = 1.2 + Math.random() * 2.2;
+    let rotationSpeedY = 1.0 + Math.random() * 2.0;
     
     let seed = Math.random() * 100;
     let rotX = Math.random() * 360;
     let rotY = Math.random() * 360;
-    let rotZ = (Math.random() - 0.5) * 25;
+    let rotZ = (Math.random() - 0.5) * 20;
 
     el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
     moneyContainer.appendChild(el);
@@ -716,33 +668,29 @@
     const centerY = rect.top + rect.height / 2;
     bill.element.remove();
 
-    const shardCount = 6;
+    const shardCount = 4;
     for (let i = 0; i < shardCount; i++) {
       const shard = document.createElement('div');
       shard.className = 'bill-shard';
-      
-      if (Math.random() > 0.5) shard.style.background = '#ffcc00';
 
       shard.style.transform = `translate3d(${centerX}px, ${centerY}px, 0)`;
       moneyContainer.appendChild(shard);
 
       const angle = Math.random() * Math.PI * 2;
-      const velocity = 2 + Math.random() * 4;
+      const velocity = 2 + Math.random() * 3;
       let sX = Math.cos(angle) * velocity;
       let sY = Math.sin(angle) * velocity;
-      let sRot = Math.random() * 360;
       let opacity = 1;
       let curX = centerX;
       let curY = centerY;
 
       function updateShard() {
-        sY += 0.25; 
+        sY += 0.3; 
         curX += sX;
         curY += sY;
-        opacity -= 0.04;
-        sRot += 4;
+        opacity -= 0.06;
 
-        shard.style.transform = `translate3d(${curX}px, ${curY}px, 0) rotate(${sRot}deg)`;
+        shard.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
         shard.style.opacity = opacity;
 
         if (opacity <= 0) {
@@ -767,9 +715,9 @@
 
       b.element.style.transform = `translate3d(${currentX}px, ${b.y}px, 0) rotateX(${b.rotX}deg) rotateY(${b.rotY}deg) rotateZ(${b.rotZ}deg)`;
 
-      // Heavily throttled fire updates to maximize rendering performance profiles
-      if (Math.random() > 0.7) {
-        spawnFlameParticle(currentX, b.y, b.rotZ);
+      // Heavily suppressed loop counter restricts layout overflow ticks
+      if (Math.random() > 0.85) {
+        spawnFlameParticle(currentX, b.y);
       }
 
       if (b.y > window.innerHeight + 60) {
@@ -780,8 +728,8 @@
     requestAnimationFrame(updateMoneyEngine);
   }
 
-  // Lengthened spawn intervals to cleanly space out active configurations
-  setInterval(spawnBill, 2200); 
+  // Increased generator window delay to 3.5 seconds for minimal background activity
+  setInterval(spawnBill, 3500); 
   requestAnimationFrame(updateMoneyEngine);
 
   /* ── Initialization ── */
