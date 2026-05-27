@@ -255,6 +255,37 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Added TV for Music Video ── */
+    #tv {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      width: 380px;
+      height: 240px;
+      background: #0a0a0a;
+      border: 18px solid #222;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+      z-index: 5;
+      overflow: hidden;
+    }
+    #tv::before {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+    }
+    #music-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   </style>
 </head>
 <body>
@@ -310,6 +341,13 @@
     </div>
   </div>
 
+  <!-- Added TV -->
+  <div id="tv">
+    <video id="music-video" loop muted>
+      <source src="musicvideo.mp4" type="video/mp4">
+    </video>
+  </div>
+
   <div id="toast"></div>
   <audio id="audio" crossorigin="anonymous"></audio>
 
@@ -343,6 +381,9 @@
     const volSlider = document.getElementById('vol-slider');
     const toast = document.getElementById('toast');
     const player = document.getElementById('player');
+
+    /* ── Added Video Element ── */
+    const musicVideo = document.getElementById('music-video');
 
     /* ── Notification Management ── */
     let toastTimer;
@@ -432,11 +473,13 @@
     document.getElementById('btn-play').addEventListener('click', () => {
       if (playing) {
         audio.pause();
+        musicVideo.pause();
         setPlaying(false);
         showToast('Paused');
       } else {
         audio.play()
           .then(() => {
+            musicVideo.play();
             setPlaying(true);
             showToast('Playing');
           })
@@ -447,6 +490,7 @@
     document.getElementById('btn-pause1').addEventListener('click', () => {
       if (playing) {
         audio.pause();
+        musicVideo.pause();
         setPlaying(false);
         showToast('Paused');
       }
@@ -454,6 +498,7 @@
 
     document.getElementById('btn-skip').addEventListener('click', () => {
       audio.currentTime = 0; 
+      musicVideo.currentTime = 0;
       showToast('Track Restarted');
     });
 
@@ -479,6 +524,7 @@
 
     audio.addEventListener('ended', () => {
       audio.currentTime = 0;
+      musicVideo.currentTime = 0;
       setPlaying(false);
       showToast('Track Finished');
     });
