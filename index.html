@@ -17,8 +17,10 @@
     #bg {
       position: fixed;
       inset: 0;
-      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
-      filter: brightness(0.55) blur(2px);
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%), 
+                  url('wallpaper.jpg') no-repeat center center;
+      background-size: cover;
+      filter: brightness(0.65) blur(2px);
       z-index: 0;
     }
 
@@ -551,18 +553,15 @@
   let activeBills = [];
 
   function spawnBill() {
-    // Keep a maximum concurrency limit to maintain smooth rendering execution loops
     if (activeBills.length > 25) return;
 
     const el = document.createElement('div');
     el.className = 'bill';
     el.innerHTML = svg100Bill;
 
-    // Set randomized initial structural attributes
     let xPos = Math.random() * (window.innerWidth - 130);
     let yPos = -60;
     
-    // Physics and sway attributes
     let fallSpeed = 1.2 + Math.random() * 2;
     let swaySpeed = 0.01 + Math.random() * 0.02;
     let swayAmount = 20 + Math.random() * 40;
@@ -593,7 +592,6 @@
       rotZ
     };
 
-    // Explode event logic trigger
     el.addEventListener('mousedown', (e) => {
       e.stopPropagation();
       explodeBill(billObj);
@@ -607,7 +605,6 @@
   }
 
   function explodeBill(bill) {
-    // Remove element representation cleanly from loops
     activeBills = activeBills.filter(b => b !== bill);
     
     const rect = bill.element.getBoundingClientRect();
@@ -616,13 +613,11 @@
 
     bill.element.remove();
 
-    // Create micro fragment shrapnel clusters
     const shardCount = 18;
     for (let i = 0; i < shardCount; i++) {
       const shard = document.createElement('div');
       shard.className = 'bill-shard';
       
-      // Randomize shade matrix slightly for debris realism
       if (Math.random() > 0.5) shard.style.background = '#c3dec4';
 
       shard.style.left = centerX + 'px';
@@ -640,7 +635,7 @@
       let curY = centerY;
 
       function updateShard() {
-        sY += 0.2; // Artificial gravity component acceleration
+        sY += 0.2; 
         curX += sX;
         curY += sY;
         opacity -= 0.02;
@@ -661,14 +656,12 @@
     }
   }
 
-  // Animation render loop handler for global bills updates
   function updateMoneyEngine() {
     for (let i = activeBills.length - 1; i >= 0; i--) {
       const b = activeBills[i];
       b.y += b.fallSpeed;
       b.seed += b.swaySpeed;
       
-      // Apply sine wave structural shift loops to mimic physical turbulence drifting
       const currentX = b.x + Math.sin(b.seed) * b.swayAmount;
       b.rotX += b.rotationSpeedX;
       b.rotY += b.rotationSpeedY;
@@ -677,7 +670,6 @@
       b.element.style.left = currentX + 'px';
       b.element.style.transform = `rotateX(${b.rotX}deg) rotateY(${b.rotY}deg) rotateZ(${b.rotZ}deg)`;
 
-      // Cleanup elements passing screen borders safely
       if (b.y > window.innerHeight + 60) {
         b.element.remove();
         activeBills.splice(i, 1);
@@ -686,7 +678,6 @@
     requestAnimationFrame(updateMoneyEngine);
   }
 
-  // Set loops intervals safely
   setInterval(spawnBill, 700);
   requestAnimationFrame(updateMoneyEngine);
 
