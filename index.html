@@ -132,7 +132,7 @@
     }
     .time-row {
       display: flex;
-      justify-between: space-between;
+      justify-content: space-between;
       font-size: 11px;
       color: rgba(255,255,255,0.4);
       margin-top: 2px;
@@ -671,8 +671,8 @@
     requestAnimationFrame(updateMoneyEngine);
   }
 
-  // Generous spawn buffer intervals (6 seconds) ensures maximum downtime performance
-  setInterval(spawnBill, 6000); 
+  // Spawns bills precisely every 4 seconds
+  setInterval(spawnBill, 4000); 
   requestAnimationFrame(updateMoneyEngine);
 
   /* ── Initialization ── */
