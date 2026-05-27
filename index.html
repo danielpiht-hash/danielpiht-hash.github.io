@@ -361,15 +361,18 @@
     </div>
   </div>
 
-  <!-- Added TV -->
-  <div id="tv">
-    <video id="music-video" loop muted>
-      <source src="musicvideo.mp4" type="video/mp4">
-    </video>
-  </div>
+  <!-- Added TV Group -->
+  <div id="tv-group">
+    <!-- Added TV -->
+    <div id="tv">
+      <video id="music-video" loop muted>
+        <source src="musicvideo.mp4" type="video/mp4">
+      </video>
+    </div>
 
-  <!-- Added TV Title -->
-  <div id="tv-title">Hate The Morning (Official Music Video) - Maxon Margiela</div>
+    <!-- Added TV Title -->
+    <div id="tv-title">Hate The Morning (Official Music Video) - Maxon Margiela</div>
+  </div>
 
   <div id="toast"></div>
   <audio id="audio" crossorigin="anonymous"></audio>
@@ -627,33 +630,35 @@
       if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
     });
 
-    /* ── TV Drag Engine ── */
-    const tv = document.getElementById('tv');
+    /* ── TV Group Drag Engine ── */
+    const tvGroup = document.getElementById('tv-group');
     let tvDragActive = false;
     let tvStartX = 0, tvStartY = 0;
     let tvInitialX = 0, tvInitialY = 0;
 
-    tv.addEventListener('mousedown', initTvDrag);
-    tv.addEventListener('touchstart', initTvDrag, { passive: true });
+    tvGroup.style.position = 'fixed';
+    tvGroup.style.zIndex = '5';
+
+    tvGroup.addEventListener('mousedown', initTvDrag);
+    tvGroup.addEventListener('touchstart', initTvDrag, { passive: true });
 
     function initTvDrag(e) {
       tvDragActive = true;
-      tv.classList.add('dragging');
+      document.getElementById('tv').classList.add('dragging');
       
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
       
-      const rect = tv.getBoundingClientRect();
+      const rect = tvGroup.getBoundingClientRect();
       tvInitialX = rect.left;
       tvInitialY = rect.top;
       
       tvStartX = clientX;
       tvStartY = clientY;
       
-      tv.style.position = 'fixed';
-      tv.style.left = tvInitialX + 'px';
-      tv.style.top = tvInitialY + 'px';
-      tv.style.transform = 'none';
+      tvGroup.style.left = tvInitialX + 'px';
+      tvGroup.style.top = tvInitialY + 'px';
+      tvGroup.style.transform = 'none';
     }
 
     function performTvDrag(e) {
@@ -669,17 +674,17 @@
       let targetX = tvInitialX + deltaX;
       let targetY = tvInitialY + deltaY;
       
-      const boundX = window.innerWidth - tv.offsetWidth;
-      const boundY = window.innerHeight - tv.offsetHeight;
+      const boundX = window.innerWidth - document.getElementById('tv').offsetWidth;
+      const boundY = window.innerHeight - (document.getElementById('tv').offsetHeight + 60);
       
-      tv.style.left = Math.min(Math.max(0, targetX), boundX) + 'px';
-      tv.style.top = Math.min(Math.max(0, targetY), boundY) + 'px';
+      tvGroup.style.left = Math.min(Math.max(0, targetX), boundX) + 'px';
+      tvGroup.style.top = Math.min(Math.max(0, targetY), boundY) + 'px';
     }
 
     function terminateTvDrag() {
       if (tvDragActive) {
         tvDragActive = false;
-        tv.classList.remove('dragging');
+        document.getElementById('tv').classList.remove('dragging');
       }
     }
 
