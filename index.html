@@ -78,8 +78,8 @@
     }
     .bill-shard {
       position: absolute;
-      width: 7px;
-      height: 7px;
+      width: 14px;
+      height: 14px;
       background: #ff5500;
       pointer-events: none;
       will-change: transform, opacity;
@@ -689,7 +689,7 @@
       const centerY = rect.top + rect.height / 2;
       bill.element.remove();
 
-      const shardCount = 3;
+      const shardCount = 18;
       for (let i = 0; i < shardCount; i++) {
         const shard = document.createElement('div');
         shard.className = 'bill-shard';
@@ -697,18 +697,18 @@
         moneyContainer.appendChild(shard);
 
         const angle = Math.random() * Math.PI * 2;
-        const velocity = 2;
+        const velocity = 5.5;
         let sX = Math.cos(angle) * velocity;
-        let sY = Math.sin(angle) * velocity;
+        let sY = Math.sin(angle) * velocity - 2.5;
         let opacity = 1;
         let curX = centerX;
         let curY = centerY;
 
         function updateShard() {
-          sY += 0.3; 
+          sY += 0.35; 
           curX += sX;
           curY += sY;
-          opacity -= 0.08;
+          opacity -= 0.055;
 
           shard.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
           shard.style.opacity = opacity;
