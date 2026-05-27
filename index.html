@@ -1,9 +1,16 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Music Player</title>
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       width: 100vw;
@@ -17,28 +24,38 @@
     #bg {
       position: fixed;
       inset: 0;
-      background: linear-gradient(135deg, rgba(30, 27, 75, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%), 
-                  url('wallpaper.jpg') no-repeat center center;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(30, 27, 75, 0.4) 0%,
+          rgba(15, 23, 42, 0.4) 100%
+        ),
+        url('wallpaper.jpg') no-repeat center center;
+
       background-size: cover;
       filter: brightness(0.65) blur(2px);
       z-index: 0;
     }
 
-    /* ── Blurry music note background waves ── */
+    /* ── Smooth White Music Waves ── */
     #music-notes-container {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 1;
+      overflow: hidden;
     }
+
     .bg-note-wave {
       position: absolute;
-      font-size: 48px;
-      color: rgba(167, 139, 250, 0.15); /* Soft purple tint */
-      filter: blur(5px);
+      width: 180px;
+      height: 40px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      filter: blur(14px);
+      opacity: 0;
       will-change: transform, opacity;
-      mix-blend-mode: screen;
-      user-select: none;
+      transform-origin: center;
     }
 
     /* ── Zero-Lag Money Styles ── */
@@ -49,6 +66,7 @@
       z-index: 2;
       perspective: 500px;
     }
+
     .bill {
       position: absolute;
       width: 110px;
@@ -59,6 +77,7 @@
       transform-style: preserve-3d;
       will-change: transform;
     }
+
     .bill-face {
       position: absolute;
       width: 100%;
@@ -67,12 +86,15 @@
       -webkit-backface-visibility: hidden;
       border-radius: 2px;
     }
+
     .bill-front {
       transform: rotateY(0deg);
     }
+
     .bill-back {
       transform: rotateY(180deg);
     }
+
     .bill-shard {
       position: absolute;
       width: 7px;
@@ -101,7 +123,11 @@
       user-select: none;
       touch-action: none;
     }
-    #player.dragging { cursor: grabbing; box-shadow: 0 48px 100px rgba(0,0,0,0.70); }
+
+    #player.dragging {
+      cursor: grabbing;
+      box-shadow: 0 48px 100px rgba(0,0,0,0.70);
+    }
 
     /* Album art */
     #art-wrap {
@@ -113,6 +139,7 @@
       margin-bottom: 20px;
       background: #1a1a2e;
     }
+
     #art-wrap img {
       position: absolute;
       inset: 0;
@@ -121,7 +148,10 @@
       object-fit: cover;
       transition: opacity 0.4s;
     }
-    #art-wrap img.fade-out { opacity: 0; }
+
+    #art-wrap img.fade-out {
+      opacity: 0;
+    }
 
     /* Vinyl spin ring animation */
     #vinyl-ring {
@@ -133,8 +163,16 @@
       animation-play-state: paused;
       pointer-events: none;
     }
-    #vinyl-ring.spinning { animation-play-state: running; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #vinyl-ring.spinning {
+      animation-play-state: running;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
     /* Song info */
     #song-title {
@@ -146,6 +184,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
     #song-artist {
       color: rgba(255,255,255,0.5);
       font-size: 13px;
@@ -161,6 +200,7 @@
       cursor: pointer;
       padding: 4px 0;
     }
+
     #progress-bg {
       width: 100%;
       height: 4px;
@@ -168,12 +208,14 @@
       background: rgba(255,255,255,0.12);
       position: relative;
     }
+
     #progress-fill {
       height: 100%;
       border-radius: 2px;
       background: linear-gradient(90deg, #a78bfa, #6366f1);
       width: 0%;
     }
+
     #progress-thumb {
       width: 12px;
       height: 12px;
@@ -185,9 +227,11 @@
       left: 0%;
       transition: transform 0.1s;
     }
+
     #progress-wrap:hover #progress-thumb {
       transform: translate(-50%, -50%) scale(1.2);
     }
+
     .time-row {
       display: flex;
       justify-content: space-between;
@@ -208,11 +252,24 @@
       fill: transparent;
       transition: fill 0.15s;
     }
-    .btn-zone:hover { fill: rgba(255,255,255,0.08); }
-    .btn-zone:active { fill: rgba(255,255,255,0.16); }
 
-    .ctrl-icon { pointer-events: none; fill: rgba(255,255,255,0.9); }
-    .ctrl-icon-sm { pointer-events: none; fill: rgba(255,255,255,0.6); }
+    .btn-zone:hover {
+      fill: rgba(255,255,255,0.08);
+    }
+
+    .btn-zone:active {
+      fill: rgba(255,255,255,0.16);
+    }
+
+    .ctrl-icon {
+      pointer-events: none;
+      fill: rgba(255,255,255,0.9);
+    }
+
+    .ctrl-icon-sm {
+      pointer-events: none;
+      fill: rgba(255,255,255,0.6);
+    }
 
     /* Volume */
     #vol-wrap {
@@ -222,7 +279,11 @@
       margin-top: 16px;
       padding: 0 4px;
     }
-    #vol-wrap svg { flex-shrink: 0; }
+
+    #vol-wrap svg {
+      flex-shrink: 0;
+    }
+
     #vol-slider {
       flex: 1;
       accent-color: #a78bfa;
@@ -251,15 +312,30 @@
       backdrop-filter: blur(10px);
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
-    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  </style></head><body><div id="bg"></div>
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="bg"></div>
 
 <div id="music-notes-container"></div>
 <div id="money-container"></div>
 
 <div id="player">
+
   <div id="art-wrap">
-    <img id="cover-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100%' height='100%' fill='%231e1b4b'/><circle cx='50' cy='50' r='20' fill='%234338ca'/></svg>" alt="Album Cover" />
+    <img
+      id="cover-img"
+      src="album.jpeg"
+      alt="Album Cover"
+    />
+
     <div id="vinyl-ring"></div>
   </div>
 
@@ -272,12 +348,14 @@
       <div id="progress-thumb"></div>
     </div>
   </div>
+
   <div class="time-row">
     <span id="time-cur">0:00</span>
     <span id="time-dur">0:00</span>
   </div>
 
-  <svg id="controls-svg" viewBox="0 0 284 60" xmlns="http://www.w3.org/2000/svg">
+  <svg id="controls-svg" viewBox="0 0 284 60">
+
     <g id="btn-pause1">
       <rect class="btn-zone" x="14" y="8" width="52" height="44" rx="10"/>
       <rect class="ctrl-icon-sm" x="31" y="20" width="5" height="20" rx="1.5"/>
@@ -286,7 +364,7 @@
 
     <g id="btn-play">
       <rect class="btn-zone" x="116" y="2" width="52" height="56" rx="14"/>
-      <polygon class="ctrl-icon" points="134,18 134,42 154,30" />
+      <polygon class="ctrl-icon" points="134,18 134,42 154,30"/>
     </g>
 
     <g id="btn-skip">
@@ -294,30 +372,52 @@
       <polygon class="ctrl-icon-sm" points="248,20 248,40 232,30"/>
       <rect class="ctrl-icon-sm" x="226" y="20" width="4" height="20" rx="1"/>
     </g>
+
   </svg>
 
   <div id="vol-wrap">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M2 5.5h2.5L8 2.5v11L4.5 10.5H2v-5z" fill="rgba(255,255,255,0.6)"/>
-      <path d="M11 5a3.5 3.5 0 0 1 0 6" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+
+    <svg width="16" height="16" viewBox="0 0 16 16">
+      <path d="M2 5.5h2.5L8 2.5v11L4.5 10.5H2v-5z"
+        fill="rgba(255,255,255,0.6)"/>
+
+      <path d="M11 5a3.5 3.5 0 0 1 0 6"
+        stroke="rgba(255,255,255,0.6)"
+        stroke-width="1.5"
+        stroke-linecap="round"/>
     </svg>
-    <input type="range" id="vol-slider" min="0" max="1" step="0.01" value="0.8" />
-  </div></div><div id="toast"></div><audio id="audio" crossorigin="anonymous"></audio><script>
-  // Track Catalog Array
+
+    <input
+      type="range"
+      id="vol-slider"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.8"
+    />
+
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<audio id="audio" crossorigin="anonymous"></audio>
+
+<script>
+
   const SONGS = [
     {
       title: "Hate The Morning",
       artist: "Maxon Margiela",
-      cover: "album.jpeg",   
-      src:   "maxonmusic.mp3" 
+      cover: "album.jpeg",
+      src: "maxonmusic.mp3"
     }
   ];
 
-  /* ── State variables ── */
   let idx = 0;
   let playing = false;
 
-  // DOM Elements
   const audio = document.getElementById('audio');
   const coverImg = document.getElementById('cover-img');
   const songTitle = document.getElementById('song-title');
@@ -331,59 +431,57 @@
   const vinylRing = document.getElementById('vinyl-ring');
   const volSlider = document.getElementById('vol-slider');
   const toast = document.getElementById('toast');
-  const player = document.getElementById('player');
 
-  /* ── Notification Management ── */
   let toastTimer;
+
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('show');
+
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 1800);
   }
 
-  /* ── Time Formatting Utility ── */
   function fmt(s) {
     if (isNaN(s) || s === Infinity) return '0:00';
+
     const mins = Math.floor(s / 60);
     const secs = Math.floor(s % 60);
+
     return mins + ':' + String(secs).padStart(2, '0');
   }
 
-  /* ── Music Metadata Management ── */
   function loadSong(i, autoplay) {
+
     const s = SONGS[i];
     if (!s) return;
 
     songTitle.textContent = s.title;
     songArtist.textContent = s.artist;
+
     audio.src = s.src;
     audio.volume = parseFloat(volSlider.value);
 
-    coverImg.classList.add('fade-out');
-    setTimeout(() => {
-      coverImg.src = s.cover;
-      coverImg.onload = () => coverImg.classList.remove('fade-out');
-      coverImg.onerror = () => {
-        coverImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100%' height='100%' fill='%231e1b4b'/></svg>";
-        coverImg.classList.remove('fade-out');
-      };
-    }, 200);
-
-    progressFill.style.width = '0%';
-    progressThumb.style.left = '0%';
-    timeCur.textContent = '0:00';
-    timeDur.textContent = '0:00';
-
     if (autoplay) {
-      audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+
+      audio.play()
+        .then(() => setPlaying(true))
+        .catch(() => setPlaying(false));
+
     } else {
+
       setPlaying(false);
+
     }
   }
 
   function setPlaying(state) {
+
     playing = state;
+
     if (state) {
       vinylRing.classList.add('spinning');
       updatePlayIcon(true);
@@ -394,72 +492,114 @@
   }
 
   function updatePlayIcon(isPlaying) {
+
     const g = document.getElementById('btn-play');
+
     const oldIcons = g.querySelectorAll('.ctrl-icon');
+
     oldIcons.forEach(el => el.remove());
 
     if (isPlaying) {
+
       [['132', '6'], ['146', '6']].forEach(([xPos, width]) => {
-        const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+
+        const r = document.createElementNS(
+          'http://www.w3.org/2000/svg',
+          'rect'
+        );
+
         r.setAttribute('class', 'ctrl-icon');
         r.setAttribute('x', xPos);
-        r.setAttribute('y', '19'); 
-        r.setAttribute('width', width); 
-        r.setAttribute('height', '22'); 
+        r.setAttribute('y', '19');
+        r.setAttribute('width', width);
+        r.setAttribute('height', '22');
         r.setAttribute('rx', '1.5');
+
         g.appendChild(r);
+
       });
+
     } else {
-      const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+
+      const poly = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'polygon'
+      );
+
       poly.setAttribute('class', 'ctrl-icon');
       poly.setAttribute('points', '134,18 134,42 154,30');
+
       g.appendChild(poly);
+
     }
   }
 
-  /* ── Interactive Player Controls ── */
-  document.getElementById('btn-play').addEventListener('click', () => {
-    if (playing) {
-      audio.pause();
-      setPlaying(false);
-      showToast('Paused');
-    } else {
-      audio.play()
-        .then(() => {
-          setPlaying(true);
-          showToast('Playing');
-        })
-        .catch(() => showToast('Audio file not found / blocked'));
-    }
-  });
+  document.getElementById('btn-play')
+    .addEventListener('click', () => {
 
-  document.getElementById('btn-pause1').addEventListener('click', () => {
-    if (playing) {
-      audio.pause();
-      setPlaying(false);
-      showToast('Paused');
-    }
-  });
+      if (playing) {
 
-  document.getElementById('btn-skip').addEventListener('click', () => {
-    audio.currentTime = 0; 
-    showToast('Track Restarted');
-  });
+        audio.pause();
+        setPlaying(false);
+        showToast('Paused');
 
-  /* ── Progress Scrub Mechanics ── */
+      } else {
+
+        audio.play()
+          .then(() => {
+            setPlaying(true);
+            showToast('Playing');
+          })
+          .catch(() => showToast('Audio file not found / blocked'));
+
+      }
+    });
+
+  document.getElementById('btn-pause1')
+    .addEventListener('click', () => {
+
+      if (playing) {
+        audio.pause();
+        setPlaying(false);
+        showToast('Paused');
+      }
+
+    });
+
+  document.getElementById('btn-skip')
+    .addEventListener('click', () => {
+
+      audio.currentTime = 0;
+      showToast('Track Restarted');
+
+    });
+
   progressWrap.addEventListener('click', e => {
+
     if (!audio.duration) return;
+
     const rect = progressBg.getBoundingClientRect();
-    const ratio = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+
+    const ratio = Math.min(
+      Math.max((e.clientX - rect.left) / rect.width, 0),
+      1
+    );
+
     audio.currentTime = ratio * audio.duration;
+
   });
 
   audio.addEventListener('timeupdate', () => {
+
     if (!audio.duration) return;
+
     const pct = (audio.currentTime / audio.duration) * 100;
+
     progressFill.style.width = pct + '%';
     progressThumb.style.left = pct + '%';
+
     timeCur.textContent = fmt(audio.currentTime);
+
   });
 
   audio.addEventListener('loadedmetadata', () => {
@@ -467,341 +607,127 @@
   });
 
   audio.addEventListener('ended', () => {
+
     audio.currentTime = 0;
+
     setPlaying(false);
+
     showToast('Track Finished');
+
   });
 
-  /* ── Volume Handling ── */
   volSlider.addEventListener('input', () => {
     audio.volume = parseFloat(volSlider.value);
   });
 
-  /* ── Strict Container Boundary Card Drag Engine ── */
-  let dragActive = false;
-  let startX = 0, startY = 0;
-  let initialX = 0, initialY = 0;
+  /* ── Smooth White Music Waves Engine ── */
 
-  player.addEventListener('mousedown', initDrag);
-  player.addEventListener('touchstart', initDrag, { passive: true });
+  const notesContainer =
+    document.getElementById('music-notes-container');
 
-  function initDrag(e) {
-    if (e.target.closest('.btn-zone, #progress-wrap, #vol-slider')) return;
-    
-    dragActive = true;
-    player.classList.add('dragging');
-    
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
-    const rect = player.getBoundingClientRect();
-    initialX = rect.left;
-    initialY = rect.top;
-    
-    startX = clientX;
-    startY = clientY;
-    
-    player.style.transform = 'none';
-    player.style.left = initialX + 'px';
-    player.style.top = initialY + 'px';
-  }
-
-  document.addEventListener('mousemove', performDrag);
-  document.addEventListener('touchmove', performDrag, { passive: false });
-
-  function performDrag(e) {
-    if (!dragActive) return;
-    if (e.cancelable) e.preventDefault();
-    
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
-    const deltaX = clientX - startX;
-    const deltaY = clientY - startY;
-    
-    let targetX = initialX + deltaX;
-    let targetY = initialY + deltaY;
-    
-    const boundX = window.innerWidth - player.offsetWidth;
-    const boundY = window.innerHeight - player.offsetHeight;
-    
-    player.style.left = Math.min(Math.max(0, targetX), boundX) + 'px';
-    player.style.top = Math.min(Math.max(0, targetY), boundY) + 'px';
-  }
-
-  const terminateDrag = () => { 
-    if (dragActive) {
-      dragActive = false; 
-      player.classList.remove('dragging'); 
-    }
-  };
-  
-  document.addEventListener('mouseup', terminateDrag);
-  document.addEventListener('touchend', terminateDrag);
-  window.addEventListener('resize', () => {
-    const rect = player.getBoundingClientRect();
-    const boundX = window.innerWidth - player.offsetWidth;
-    const boundY = window.innerHeight - player.offsetHeight;
-    if (rect.left > boundX) player.style.left = Math.max(0, boundX) + 'px';
-    if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
-  });
-
-  /* ── Flat, Pure Cartoon Money Engine ── */
-  const moneyContainer = document.getElementById('money-container');
-  
-  // Clean flat rectangle vectors with a static corner fire shape (saves CPU)
-  const svg100Front = `
-    <svg width="100%" height="100%" viewBox="0 0 110 46" xmlns="http://www.w3.org/2000/svg">
-      <rect width="110" height="46" fill="#e3edd5" stroke="#9bb18d" stroke-width="1.5"/>
-      <rect x="3" y="3" width="104" height="40" fill="none" stroke="#b4c7a8" stroke-width="0.75" stroke-dasharray="2,1"/>
-      
-      <line x1="12" y1="8" x2="98" y2="8" stroke="#cad4c0" stroke-width="0.5"/>
-      <line x1="12" y1="38" x2="98" y2="38" stroke="#cad4c0" stroke-width="0.5"/>
-      
-      <rect x="72" y="0" width="7" height="46" fill="#5b8bb3" opacity="0.85"/>
-      <line x1="75.5" y1="0" x2="75.5" y2="46" stroke="#ffffff" stroke-width="0.75" stroke-dasharray="3,3"/>
-      
-      <ellipse cx="44" cy="23" rx="11" ry="14" fill="#d3e0c3" opacity="0.7"/>
-      <path d="M38,32 C38,24 50,24 50,32 Z" fill="#9fae90" opacity="0.6"/>
-      <circle cx="44" cy="19" r="5" fill="#9fae90" opacity="0.6"/>
-      
-      <text x="10" y="38" font-family="'Courier New', monospace" font-weight="900" font-size="15" fill="#4d6143" letter-spacing="-0.5">100</text>
-      <text x="83" y="17" font-family="sans-serif" font-weight="bold" font-size="8" fill="#4d6143">100</text>
-      
-      <path d="M88,32 L96,32 L94,27 L90,27 Z" fill="#9c7a46" opacity="0.9"/>
-      <circle cx="92" cy="27" r="2" fill="#e3edd5"/>
-
-      <path d="M-2,10 Q16,14 10,48 L-2,48 Z" fill="#ff2a00" opacity="0.85"/>
-      <path d="M-2,16 Q12,20 6,48 L-2,48 Z" fill="#ff7700" opacity="0.9"/>
-      <path d="M-2,24 Q8,26 2,48 L-2,48 Z" fill="#ffcc00" opacity="0.95"/>
-      <path d="M-2,32 Q4,32 0,48 L-2,48 Z" fill="#ffffcc" opacity="0.95"/>
-      <circle cx="14" cy="12" r="1.5" fill="#ff5500" opacity="0.6"/>
-      <circle cx="8" cy="6" r="1" fill="#ffaa00" opacity="0.8"/>
-    </svg>
-  `;
-
-  const svg100Back = `
-    <svg width="100%" height="100%" viewBox="0 0 110 46" xmlns="http://www.w3.org/2000/svg">
-      <rect width="110" height="46" fill="#dbe6cb" stroke="#9bb18d" stroke-width="1.5"/>
-      <rect x="3" y="3" width="104" height="40" fill="none" stroke="#a7bd99" stroke-width="0.5"/>
-      
-      <rect x="30" y="16" width="50" height="18" fill="#7d9471" opacity="0.6"/>
-      <rect x="50" y="8" width="10" height="8" fill="#6a825e" opacity="0.7"/>
-      <line x1="55" y1="4" x2="55" y2="8" stroke="#566d4b" stroke-width="1"/>
-      
-      <text x="8" y="18" font-family="'Courier New', monospace" font-weight="bold" font-size="12" fill="#5c7351">100</text>
-      <text x="84" y="38" font-family="'Courier New', monospace" font-weight="bold" font-size="14" fill="#45573c">100</text>
-      
-      <path d="M-2,10 Q16,14 10,48 L-2,48 Z" fill="#ff2a00" opacity="0.85"/>
-      <path d="M-2,16 Q12,20 6,48 L-2,48 Z" fill="#ff7700" opacity="0.9"/>
-      <path d="M-2,24 Q8,26 2,48 L-2,48 Z" fill="#ffcc00" opacity="0.95"/>
-      <path d="M-2,32 Q4,32 0,48 L-2,48 Z" fill="#ffffcc" opacity="0.95"/>
-      <circle cx="14" cy="12" r="1.5" fill="#ff5500" opacity="0.6"/>
-      <circle cx="8" cy="6" r="1" fill="#ffaa00" opacity="0.8"/>
-    </svg>
-  `;
-
-  let activeBills = [];
-
-  function spawnBill() {
-    // Rigidly clamped down to maximum 6 bills on screen at a time
-    if (activeBills.length >= 6) return;
-
-    const el = document.createElement('div');
-    el.className = 'bill';
-    
-    el.innerHTML = `
-      <div class="bill-face bill-front">${svg100Front}</div>
-      <div class="bill-face bill-back">${svg100Back}</div>
-    `;
-
-    let xPos = Math.random() * (window.innerWidth - 110);
-    let yPos = -50;
-    
-    let fallSpeed = 1.3; 
-    let swaySpeed = 0.01;
-    let swayAmount = 15;
-    let rotationSpeedX = 0.8; 
-    let rotationSpeedY = 1.5;
-    
-    let seed = Math.random() * 100;
-    let rotX = Math.random() * 360;
-    let rotY = Math.random() * 360;
-    let rotZ = (Math.random() - 0.5) * 15;
-
-    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-    moneyContainer.appendChild(el);
-
-    const billObj = {
-      element: el,
-      x: xPos,
-      y: yPos,
-      fallSpeed,
-      swaySpeed,
-      swayAmount,
-      rotationSpeedX,
-      rotationSpeedY,
-      seed,
-      rotX,
-      rotY,
-      rotZ
-    };
-
-    el.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-      explodeBill(billObj);
-    });
-    el.addEventListener('touchstart', (e) => {
-      e.stopPropagation();
-      explodeBill(billObj);
-    }, { passive: true });
-
-    activeBills.push(billObj);
-  }
-
-  function explodeBill(bill) {
-    activeBills = activeBills.filter(b => b !== bill);
-    const rect = bill.element.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    bill.element.remove();
-
-    // Bare minimum shards on pop
-    const shardCount = 3;
-    for (let i = 0; i < shardCount; i++) {
-      const shard = document.createElement('div');
-      shard.className = 'bill-shard';
-      shard.style.transform = `translate3d(${centerX}px, ${centerY}px, 0)`;
-      moneyContainer.appendChild(shard);
-
-      const angle = Math.random() * Math.PI * 2;
-      const velocity = 2;
-      let sX = Math.cos(angle) * velocity;
-      let sY = Math.sin(angle) * velocity;
-      let opacity = 1;
-      let curX = centerX;
-      let curY = centerY;
-
-      function updateShard() {
-        sY += 0.3; 
-        curX += sX;
-        curY += sY;
-        opacity -= 0.08;
-
-        shard.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
-        shard.style.opacity = opacity;
-
-        if (opacity <= 0) {
-          shard.remove();
-        } else {
-          requestAnimationFrame(updateShard);
-        }
-      }
-      requestAnimationFrame(updateShard);
-    }
-  }
-
-  function updateMoneyEngine() {
-    for (let i = activeBills.length - 1; i >= 0; i--) {
-      const b = activeBills[i];
-      b.y += b.fallSpeed;
-      b.seed += b.swaySpeed;
-      
-      const currentX = b.x + Math.sin(b.seed) * b.swayAmount;
-      b.rotX += b.rotationSpeedX;
-      b.rotY += b.rotationSpeedY;
-
-      b.element.style.transform = `translate3d(${currentX}px, ${b.y}px, 0) rotateX(${b.rotX}deg) rotateY(${b.rotY}deg) rotateZ(${b.rotZ}deg)`;
-
-      if (b.y > window.innerHeight + 50) {
-        b.element.remove();
-        activeBills.splice(i, 1);
-      }
-    }
-    requestAnimationFrame(updateMoneyEngine);
-  }
-
-  /* ── Ultra Performance Blurry Music Note Waves Engine ── */
-  const notesContainer = document.getElementById('music-notes-container');
-  const NOTE_CHARS = ['♪', '♫', '♩', '♬', '♭', '♮', '♯'];
   let activeNotes = [];
 
   function spawnNoteWave() {
-    // Keep it tightly capped to ensure zero performance degradation
-    if (activeNotes.length >= 8) return;
+
+    if (activeNotes.length >= 7) return;
 
     const el = document.createElement('div');
+
     el.className = 'bg-note-wave';
-    el.textContent = NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)];
 
-    // Start near the bottom or sides to float across smoothly
+    const width = 120 + Math.random() * 180;
+    const height = 18 + Math.random() * 20;
+
+    el.style.width = width + 'px';
+    el.style.height = height + 'px';
+
     let xPos = Math.random() * window.innerWidth;
-    let yPos = window.innerHeight + 40;
-    let currentOpacity = 0;
-    let maxOpacity = 0.3 + Math.random() * 0.4;
-    
-    let floatSpeed = 0.6 + Math.random() * 0.8;
-    let waveSeed = Math.random() * 100;
-    let waveSpeed = 0.005 + Math.random() * 0.01;
-    let waveAmount = 20 + Math.random() * 30;
-    let currentScale = 0.6 + Math.random() * 0.6;
+    let yPos = window.innerHeight + 60;
 
-    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0) scale(${currentScale})`;
-    el.style.opacity = currentOpacity;
+    let waveSeed = Math.random() * 100;
+    let waveSpeed = 0.008 + Math.random() * 0.006;
+    let waveAmount = 18 + Math.random() * 20;
+
+    let floatSpeed = 0.35 + Math.random() * 0.4;
+
+    let opacity = 0;
+    let maxOpacity = 0.08 + Math.random() * 0.08;
+
+    let scale = 0.9 + Math.random() * 0.4;
+
     notesContainer.appendChild(el);
 
     activeNotes.push({
       element: el,
       x: xPos,
       y: yPos,
-      floatSpeed,
       waveSeed,
       waveSpeed,
       waveAmount,
-      currentOpacity,
+      floatSpeed,
+      opacity,
       maxOpacity,
-      currentScale,
+      scale,
       fadingIn: true
     });
+
   }
 
   function updateNotesEngine() {
+
     for (let i = activeNotes.length - 1; i >= 0; i--) {
+
       const n = activeNotes[i];
+
       n.y -= n.floatSpeed;
+
       n.waveSeed += n.waveSpeed;
 
-      const currentX = n.x + Math.sin(n.waveSeed) * n.waveAmount;
+      const waveX =
+        Math.sin(n.waveSeed) * n.waveAmount;
 
       if (n.fadingIn) {
-        n.currentOpacity += 0.01;
-        if (n.currentOpacity >= n.maxOpacity) {
-          n.currentOpacity = n.maxOpacity;
+
+        n.opacity += 0.003;
+
+        if (n.opacity >= n.maxOpacity) {
+
+          n.opacity = n.maxOpacity;
           n.fadingIn = false;
+
         }
-      } else if (n.y < window.innerHeight * 0.3) {
-        // Smoothly fade out as it reaches the top region
-        n.currentOpacity -= 0.005;
       }
 
-      n.element.style.transform = `translate3d(${currentX}px, ${n.y}px, 0) scale(${n.currentScale})`;
-      n.element.style.opacity = n.currentOpacity;
+      if (n.y < window.innerHeight * 0.35) {
+        n.opacity -= 0.0015;
+      }
 
-      if (n.y < -60 || n.currentOpacity <= 0) {
+      n.element.style.opacity = n.opacity;
+
+      n.element.style.transform =
+        `translate3d(${n.x + waveX}px, ${n.y}px, 0)
+         scale(${n.scale})`;
+
+      if (n.y < -80 || n.opacity <= 0) {
+
         n.element.remove();
+
         activeNotes.splice(i, 1);
+
       }
     }
+
     requestAnimationFrame(updateNotesEngine);
+
   }
 
-  // Orchestrate cycles safely
-  setInterval(spawnBill, 2000); 
-  setInterval(spawnNoteWave, 2500);
-  
-  requestAnimationFrame(updateMoneyEngine);
+  setInterval(spawnNoteWave, 1800);
+
   requestAnimationFrame(updateNotesEngine);
 
-  /* ── Initialization ── */
   loadSong(idx, false);
-</script></body></html>
+
+</script>
+
+</body>
+</html>
