@@ -531,6 +531,7 @@
       const rect = progressBg.getBoundingClientRect();
       const ratio = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
       audio.currentTime = ratio * audio.duration;
+      musicVideo.currentTime = audio.currentTime;   /* Added sync */
     });
 
     audio.addEventListener('timeupdate', () => {
@@ -625,6 +626,67 @@
       if (rect.left > boundX) player.style.left = Math.max(0, boundX) + 'px';
       if (rect.top > boundY) player.style.top = Math.max(0, boundY) + 'px';
     });
+
+    /* ── TV Drag (Added) ── */
+    const tv = document.getElementById('tv');
+    let tvDragActive = false;
+    let tvStartX = 0, tvStartY = 0;
+    let tvInitialX = 0, tvInitialY = 0;
+
+    tv.addEventListener('mousedown', initTvDrag);
+    tv.addEventListener('touchstart', initTvDrag, { passive: true });
+
+    function initTvDrag(e) {
+      tvDragActive = true;
+      tv.classList.add('dragging');
+      
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      const rect = tv.getBoundingClientRect();
+      tvInitialX = rect.left;
+      tvInitialY = rect.top;
+      
+      tvStartX = clientX;
+      tvStartY = clientY;
+      
+      tv.style.position = 'fixed';
+      tv.style.left = tvInitialX + 'px';
+      tv.style.top = tvInitialY + 'px';
+      tv.style.transform = 'none';
+    }
+
+    function performTvDrag(e) {
+      if (!tvDragActive) return;
+      if (e.cancelable) e.preventDefault();
+      
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      const deltaX = clientX - tvStartX;
+      const deltaY = clientY - tvStartY;
+      
+      let targetX = tvInitialX + deltaX;
+      let targetY = tvInitialY + deltaY;
+      
+      const boundX = window.innerWidth - tv.offsetWidth;
+      const boundY = window.innerHeight - tv.offsetHeight;
+      
+      tv.style.left = Math.min(Math.max(0, targetX), boundX) + 'px';
+      tv.style.top = Math.min(Math.max(0, targetY), boundY) + 'px';
+    }
+
+    function terminateTvDrag() {
+      if (tvDragActive) {
+        tvDragActive = false;
+        tv.classList.remove('dragging');
+      }
+    }
+
+    document.addEventListener('mousemove', performTvDrag);
+    document.addEventListener('touchmove', performTvDrag, { passive: false });
+    document.addEventListener('mouseup', terminateTvDrag);
+    document.addEventListener('touchend', terminateTvDrag);
 
     /* ── Flat, Pure Cartoon Money Engine ── */
     const moneyContainer = document.getElementById('money-container');
