@@ -24,6 +24,64 @@
       z-index: 0;
     }
 
+    /* ── Blurry music note background waves ── */
+    #music-notes-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .bg-note-wave {
+      position: absolute;
+      font-size: 48px;
+      color: rgba(167, 139, 250, 0.15); /* Soft purple tint */
+      filter: blur(5px);
+      will-change: transform, opacity;
+      mix-blend-mode: screen;
+      user-select: none;
+    }
+
+    /* ── Zero-Lag Money Styles ── */
+    #money-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      perspective: 500px;
+    }
+    .bill {
+      position: absolute;
+      width: 110px;
+      height: 46px;
+      cursor: pointer;
+      pointer-events: auto;
+      user-select: none;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .bill-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 2px;
+    }
+    .bill-front {
+      transform: rotateY(0deg);
+    }
+    .bill-back {
+      transform: rotateY(180deg);
+    }
+    .bill-shard {
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      background: #ff5500;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
     /* ── Draggable player card ── */
     #player {
       position: fixed;
@@ -194,49 +252,9 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    /* ── Zero-Lag Money Styles ── */
-    #money-container {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      perspective: 500px;
-    }
-    .bill {
-      position: absolute;
-      width: 110px;
-      height: 46px;
-      cursor: pointer;
-      pointer-events: auto;
-      user-select: none;
-      transform-style: preserve-3d;
-      will-change: transform;
-    }
-    .bill-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      border-radius: 2px;
-    }
-    .bill-front {
-      transform: rotateY(0deg);
-    }
-    .bill-back {
-      transform: rotateY(180deg);
-    }
-    .bill-shard {
-      position: absolute;
-      width: 7px;
-      height: 7px;
-      background: #ff5500;
-      pointer-events: none;
-      will-change: transform, opacity;
-    }
   </style></head><body><div id="bg"></div>
 
+<div id="music-notes-container"></div>
 <div id="money-container"></div>
 
 <div id="player">
@@ -703,9 +721,86 @@
     requestAnimationFrame(updateMoneyEngine);
   }
 
-  // Spawns bills precisely every 2 seconds
+  /* ── Ultra Performance Blurry Music Note Waves Engine ── */
+  const notesContainer = document.getElementById('music-notes-container');
+  const NOTE_CHARS = ['♪', '♫', '♩', '♬', '♭', '♮', '♯'];
+  let activeNotes = [];
+
+  function spawnNoteWave() {
+    // Keep it tightly capped to ensure zero performance degradation
+    if (activeNotes.length >= 8) return;
+
+    const el = document.createElement('div');
+    el.className = 'bg-note-wave';
+    el.textContent = NOTE_CHARS[Math.floor(Math.random() * NOTE_CHARS.length)];
+
+    // Start near the bottom or sides to float across smoothly
+    let xPos = Math.random() * window.innerWidth;
+    let yPos = window.innerHeight + 40;
+    let currentOpacity = 0;
+    let maxOpacity = 0.3 + Math.random() * 0.4;
+    
+    let floatSpeed = 0.6 + Math.random() * 0.8;
+    let waveSeed = Math.random() * 100;
+    let waveSpeed = 0.005 + Math.random() * 0.01;
+    let waveAmount = 20 + Math.random() * 30;
+    let currentScale = 0.6 + Math.random() * 0.6;
+
+    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0) scale(${currentScale})`;
+    el.style.opacity = currentOpacity;
+    notesContainer.appendChild(el);
+
+    activeNotes.push({
+      element: el,
+      x: xPos,
+      y: yPos,
+      floatSpeed,
+      waveSeed,
+      waveSpeed,
+      waveAmount,
+      currentOpacity,
+      maxOpacity,
+      currentScale,
+      fadingIn: true
+    });
+  }
+
+  function updateNotesEngine() {
+    for (let i = activeNotes.length - 1; i >= 0; i--) {
+      const n = activeNotes[i];
+      n.y -= n.floatSpeed;
+      n.waveSeed += n.waveSpeed;
+
+      const currentX = n.x + Math.sin(n.waveSeed) * n.waveAmount;
+
+      if (n.fadingIn) {
+        n.currentOpacity += 0.01;
+        if (n.currentOpacity >= n.maxOpacity) {
+          n.currentOpacity = n.maxOpacity;
+          n.fadingIn = false;
+        }
+      } else if (n.y < window.innerHeight * 0.3) {
+        // Smoothly fade out as it reaches the top region
+        n.currentOpacity -= 0.005;
+      }
+
+      n.element.style.transform = `translate3d(${currentX}px, ${n.y}px, 0) scale(${n.currentScale})`;
+      n.element.style.opacity = n.currentOpacity;
+
+      if (n.y < -60 || n.currentOpacity <= 0) {
+        n.element.remove();
+        activeNotes.splice(i, 1);
+      }
+    }
+    requestAnimationFrame(updateNotesEngine);
+  }
+
+  // Orchestrate cycles safely
   setInterval(spawnBill, 2000); 
+  setInterval(spawnNoteWave, 2500);
+  
   requestAnimationFrame(updateMoneyEngine);
+  requestAnimationFrame(updateNotesEngine);
 
   /* ── Initialization ── */
   loadSong(idx, false);
