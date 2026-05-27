@@ -554,8 +554,8 @@
   let activeBills = [];
 
   function spawnBill() {
-    // Rigidly clamped down to maximum 1 bill on screen at a time
-    if (activeBills.length > 0) return;
+    // Rigidly clamped down to maximum 3 bills on screen at a time
+    if (activeBills.length >= 3) return;
 
     const el = document.createElement('div');
     el.className = 'bill';
