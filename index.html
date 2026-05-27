@@ -553,8 +553,12 @@
       <path d="M88,32 L96,32 L94,27 L90,27 Z" fill="#9c7a46" opacity="0.9"/>
       <circle cx="92" cy="27" r="2" fill="#e3edd5"/>
 
-      <path d="M0,20 Q12,25 5,46 L0,46 Z" fill="#ff4400"/>
-      <path d="M0,28 Q8,32 3,46 L0,46 Z" fill="#ffbb00"/>
+      <path d="M-2,10 Q16,14 10,48 L-2,48 Z" fill="#ff2a00" opacity="0.85"/>
+      <path d="M-2,16 Q12,20 6,48 L-2,48 Z" fill="#ff7700" opacity="0.9"/>
+      <path d="M-2,24 Q8,26 2,48 L-2,48 Z" fill="#ffcc00" opacity="0.95"/>
+      <path d="M-2,32 Q4,32 0,48 L-2,48 Z" fill="#ffffcc" opacity="0.95"/>
+      <circle cx="14" cy="12" r="1.5" fill="#ff5500" opacity="0.6"/>
+      <circle cx="8" cy="6" r="1" fill="#ffaa00" opacity="0.8"/>
     </svg>
   `;
 
@@ -570,16 +574,20 @@
       <text x="8" y="18" font-family="'Courier New', monospace" font-weight="bold" font-size="12" fill="#5c7351">100</text>
       <text x="84" y="38" font-family="'Courier New', monospace" font-weight="bold" font-size="14" fill="#45573c">100</text>
       
-      <path d="M0,20 Q12,25 5,46 L0,46 Z" fill="#ff4400"/>
-      <path d="M0,28 Q8,32 3,46 L0,46 Z" fill="#ffbb00"/>
+      <path d="M-2,10 Q16,14 10,48 L-2,48 Z" fill="#ff2a00" opacity="0.85"/>
+      <path d="M-2,16 Q12,20 6,48 L-2,48 Z" fill="#ff7700" opacity="0.9"/>
+      <path d="M-2,24 Q8,26 2,48 L-2,48 Z" fill="#ffcc00" opacity="0.95"/>
+      <path d="M-2,32 Q4,32 0,48 L-2,48 Z" fill="#ffffcc" opacity="0.95"/>
+      <circle cx="14" cy="12" r="1.5" fill="#ff5500" opacity="0.6"/>
+      <circle cx="8" cy="6" r="1" fill="#ffaa00" opacity="0.8"/>
     </svg>
   `;
 
   let activeBills = [];
 
   function spawnBill() {
-    // Rigidly clamped down to maximum 3 bills on screen at a time
-    if (activeBills.length >= 3) return;
+    // Rigidly clamped down to maximum 6 bills on screen at a time
+    if (activeBills.length >= 6) return;
 
     const el = document.createElement('div');
     el.className = 'bill';
